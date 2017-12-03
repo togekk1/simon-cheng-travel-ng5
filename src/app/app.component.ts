@@ -1,6 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { trigger, style, transition, animate, state } from '@angular/animations';
 import { Options } from 'selenium-webdriver';
+import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { Observable } from 'rxjs/Observable';
+import * as firebase from 'firebase/app';
 
 @Component({
   selector: 'app-root',
@@ -27,19 +30,57 @@ import { Options } from 'selenium-webdriver';
 export class AppComponent implements OnInit {
   disabled: Boolean;
   leave: Boolean;
+  background: any;
+  intro_bg: string;
 
-  constructor() {
+  constructor(public afDb: AngularFireDatabase) {
     this.disabled = true;
+    afDb.list('background').valueChanges().subscribe(res => {
+      this.background = res;
+      this.render_bg();
+    });
   }
+
   ngOnInit() {
-    // let animation = { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0)'] };
-    // let ease = { easing: 'cubic-bezier(0, .5, .5, 1)', fill: 'forwards' };
-    // document.querySelector('.pre').animate(animation, Object.assign({ duration: 1000, delay: 4000 }, ease));
-    // document.querySelector('.name').animate(animation, Object.assign({ duration: 1000, delay: 5000 }, ease));
-    // const enter_animation = document.querySelector('.enter').animate({ opacity: [0, 1], transform: ['translateX(5px)', 'translateX(0)'] },
-    //   Object.assign({ duration: 300, delay: 7000 }, ease));
-    // enter_animation.onfinish = () => {
-    //   this.disabled = false;
-    // };
+
+    // const completedPercentage = [];
+    // let sum;
+
+    // for (let i = 0; i < items.length; i++) {
+
+    //   const xmlHTTP = new XMLHttpRequest();
+    //   xmlHTTP.open('GET', items[i], true);
+    //   xmlHTTP.responseType = 'arraybuffer';
+    //   xmlHTTP.onload = e => {
+    //     let blob = new Blob([this.response]);
+    //     let src = window.URL.createObjectURL(blob);
+    //   };
+    //   xmlHTTP.onprogress = e => {
+    //     completedPercentage[i] = parseInt((e.loaded / e.total) * 100);
+    //     sum = parseInt(completedPercentage.reduce((a, b) => a + b, 0) /
+    //       items.length);
+    //     this.loading_percentage = sum;
+
+    //     if (sum === 100) {
+    //       // this.intro_hidden = false;
+    //       // const loading_animation = this.$$('.loading').animate({ opacity: [1, 0] }, { duration: 1000, fill: 'forwards', delay: 2000 })
+    //       // loading_animation.onfinish = () => {
+    //       //   this.loading_hidden = true;
+    //       // };
+
+    //       console.log('Loading complete')
+    //     };
+
+    //   };
+    //   xmlHTTP.onloadstart = () => {
+    //     completedPercentage[i] = 0;
+    //   };
+    //   xmlHTTP.send();
+
+    // }
+  }
+
+  render_bg() {
+    this.intro_bg = "url(" + this.background[this.background.length - 1].org + ")";
   }
 }
