@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { trigger, style, transition, animate, state } from '@angular/animations';
+import { Options } from 'selenium-webdriver';
 
 @Component({
   selector: 'app-root',
@@ -7,20 +8,19 @@ import { trigger, style, transition, animate, state } from '@angular/animations'
   styleUrls: ['./app.component.less', '../assets/fonts/stylesheet.css'],
   animations: [
     trigger('pre', [
-      state("on", style({ opacity: 1, transform: 'translateY(0)' })),
-      transition(":enter", animate('1s 4s cubic-bezier(0, .5, .5, 1)')),
-      transition(":leave", animate('.7s ease-in', style({ opacity: 0, transform: 'translateY(-10px)' })
-      )
+      state('on', style({ opacity: 1, transform: 'translateY(0)' })),
+      transition(':enter', animate('1s 4s cubic-bezier(0, .5, .5, 1)')),
+      transition(':leave', animate('.7s ease-in', style({ opacity: 0, transform: 'translateY(-10px)' })))
     ]),
     trigger('name', [
-      state("on", style({ opacity: 1, transform: 'translateY(0)' })),
-      transition(":enter", animate('1s 5s cubic-bezier(0, .5, .5, 1)'))
-      transition(":leave", animate('.5s ease-in', style({ opacity: 0, transform: 'translateY(-10px)' })
+      state('on', style({ opacity: 1, transform: 'translateY(0)' })),
+      transition(':enter', animate('1s 5s cubic-bezier(0, .5, .5, 1)')),
+      transition(':leave', animate('.5s ease-in', style({ opacity: 0, transform: 'translateY(-10px)' })))
     ]),
     trigger('enter', [
-      state("on", style({ opacity: 1, transform: 'translateX(0)' })),
-      transition(":enter", animate('300ms 7s cubic-bezier(0, .5, .5, 1)'))
-      transition(":leave", animate('.3s ease-in', style({ opacity: 0, transform: 'translateX(-5px)' })
+      state('on', style({ opacity: 1, transform: 'translateX(0)' })),
+      transition(':enter', animate('300ms 7s cubic-bezier(0, .5, .5, 1)')),
+      transition(':leave', animate('.3s ease-in', style({ opacity: 0, transform: 'translateX(-5px)' })))
     ])
   ]
 })
