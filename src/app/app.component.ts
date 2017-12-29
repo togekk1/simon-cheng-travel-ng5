@@ -87,7 +87,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
   intro_hide: Boolean;
   data: Array<any> = [];
   scrolling_offset: number;
-  pin_trigger: Array<any> = [];
+  pin_point: any;
+  pin_trigger: any;
+  triggers: string;
+  pin_top: number;
+  a: number;
 
   constructor(
     public afDb: AngularFireDatabase,
@@ -113,7 +117,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
       .valueChanges()
       .subscribe(res => {
         res.forEach(data => {
-          this.data.push(this.sanitizer.bypassSecurityTrustHtml(data));
+          this.data.push(data);
         });
         // this.render_page();
       });
@@ -123,7 +127,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     this.intro_bg = "url(" + this.intro_bg.org + ")";
   }
 
-  tap_content() {}
+  tap_content() { }
 
   handleDone(event: AnimationTransitionEvent) {
     console.log(event.toState);
@@ -136,17 +140,31 @@ export class AppComponent implements OnInit, AfterViewChecked {
     // const pin_top = this.pin.nativeElement.getBoundingClientRect();
     // if (pin_top < 0) console.log("OK");
     this.pin_trigger.forEach(pin => {
-      if (
-        pin.getBoundingClientRect().top < 0 &&
-        pin.getBoundingClientRect().top > -2000
-      ) {
-        this.document.documentElement.scrollTop = this.scrolling_offset;
-      }
+      this.pin_top = pin.getBoundingClientRect().top
     });
+    // console.log(1 - (this.pin_top) / 200)
+    this.a = this.pin_top > -200 ? 1 - this.pin_top / 200 : 4 - this.pin_top / -200
+    console.log(this.a)
   }
 
   ngAfterViewChecked() {
+    this.pin_point = document.querySelectorAll(".pin_point");
     this.pin_trigger = document.querySelectorAll(".pin_trigger");
+    if (!!this.pin_point && !!this.pin_trigger) {
+      this.pin_point.forEach(el => {
+        // console.log(el.innerHTML)
+        this.triggers = el.innerHTML
+
+        el.style.color = "#FFFFFF";
+        el.style.gridColumn = "2 / 3";
+        el.style.alignSelf = "center";
+        el.style.zIndex = "0"
+        // el.style.opacity = "0";
+      });
+      this.pin_trigger.forEach(el => {
+        el.style.height = "1100px"
+      });
+    }
   }
 
   ngOnInit() {
