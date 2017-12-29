@@ -1,4 +1,11 @@
-import { Component, Input, OnInit, HostListener, Inject } from "@angular/core";
+import {
+  Component,
+  Input,
+  OnInit,
+  HostListener,
+  Inject,
+  AnimationTransitionEvent
+} from "@angular/core";
 import {
   trigger,
   style,

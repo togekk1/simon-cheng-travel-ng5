@@ -3,7 +3,8 @@
 <div *ngIf="!content_page_show">
   <div class="bg_container fill">
 
-    <div class="bg_content"></div>
+    <div class="bg_content">
+    </div>
 
     <div class="bg filter fill"></div>
 
@@ -45,14 +46,14 @@
 
   <div class="text text_fadeout" (click)="tap_content()">
 
-    <!-- <div class="bleed" on-mouseover="bleed_hover" on-mouseout="bleed_unhover"></div> -->
+    <div class="bleed" on-mouseover="bleed_hover" on-mouseout="bleed_unhover"></div>
 
     <div class="content">
       <div *ngFor="let item of data" [innerHTML]="item">
       </div>
     </div>
 
-    <!-- <div class="bleed" on-mouseover="bleed_hover" on-mouseout="bleed_unhover"></div> -->
+    <div class="bleed" on-mouseover="bleed_hover" on-mouseout="bleed_unhover"></div>
 
   </div>
 </div>

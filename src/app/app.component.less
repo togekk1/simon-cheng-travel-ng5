@@ -6,7 +6,9 @@
 }
 
 .intro {
-  //   opacity: 0;
+  position: fixed;
+  background-size: cover;
+  top: 0;
   .container {
     width: 100%;
     height: 100%;
@@ -147,6 +149,7 @@
   display: grid;
   grid-template-columns: 20% auto 20%;
   grid-template-rows: auto;
+  z-index: -999;
   .filter {
     background-color: rgba(0, 0, 0, 0.5);
   }
@@ -171,7 +174,7 @@
 .text {
   /*padding: 10% 3% 3% 3%;*/
   line-height: 7vh;
-  color: #000;
+  color: #ffffff;
   display: flex;
   // opacity: 0;
 }
