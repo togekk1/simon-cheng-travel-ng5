@@ -4,6 +4,8 @@
   <div class="bg_container fill">
 
     <div class="bg_content">
+      <div class="bg img fill" *ngFor="let bg of background" [ngStyle]="{'background-image': 'url(' + bg.org + ')'}">
+      </div>
     </div>
 
     <div class="bg filter fill"></div>
@@ -12,7 +14,7 @@
       <span>Scroll down</span>
     </div>
 
-    <div class="prologue_box" [ngStyle]="{'opacity': (7500 - this.scrolling_offset) / 700}">
+    <div class="prologue_box" [ngStyle]="{'opacity': (7500 - scrolling_offset) / 300}">
 
       <div class="bleed"></div>
 
@@ -46,14 +48,14 @@
 
   <div class="text text_fadeout" (click)="tap_content()">
 
-    <div class="bleed" on-mouseover="bleed_hover" on-mouseout="bleed_unhover"></div>
+    <div class="bleed"></div>
 
     <div class="content">
       <div *ngFor="let item of data" [innerHTML]="item">
       </div>
     </div>
 
-    <div class="bleed" on-mouseover="bleed_hover" on-mouseout="bleed_unhover"></div>
+    <div class="bleed"></div>
 
   </div>
 </div>

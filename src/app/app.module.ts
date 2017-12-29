@@ -12,8 +12,6 @@ import { AngularFireModule } from "angularfire2";
 // New imports to update based on AngularFire2 version 4
 import { AngularFireDatabaseModule } from "angularfire2/database";
 
-import { WINDOW_PROVIDERS } from "./window.service";
-
 export const firebaseConfig = {
   apiKey: "AIzaSyB6tIkSAFsEb8cZQSYq4tlOpuw9DWaF-_E",
   authDomain: "simon-cheng-64272.firebaseapp.com",
@@ -34,7 +32,7 @@ export const firebaseConfig = {
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireDatabaseModule
   ],
-  providers: [WINDOW_PROVIDERS],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

@@ -2,9 +2,13 @@ import {
   Component,
   Input,
   OnInit,
+  ViewChild,
+  ElementRef,
   HostListener,
   Inject,
-  AnimationTransitionEvent
+  AnimationTransitionEvent,
+  Directive,
+  AfterViewChecked
 } from "@angular/core";
 import {
   trigger,
@@ -17,8 +21,7 @@ import { Options } from "selenium-webdriver";
 import { AngularFireDatabase, AngularFireList } from "angularfire2/database";
 import { Observable } from "rxjs/Observable";
 import * as firebase from "firebase/app";
-import { DOCUMENT } from "@angular/platform-browser";
-import { WINDOW } from "./window.service";
+import { DOCUMENT, DomSanitizer } from "@angular/platform-browser";
 
 @Component({
   selector: "app-root",
@@ -76,7 +79,7 @@ import { WINDOW } from "./window.service";
     ])
   ]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewChecked {
   disabled: Boolean;
   leave: Boolean;
   background: any;
@@ -84,11 +87,12 @@ export class AppComponent implements OnInit {
   intro_hide: Boolean;
   data: Array<any> = [];
   scrolling_offset: number;
+  pin_trigger: Array<any> = [];
 
   constructor(
     public afDb: AngularFireDatabase,
-    @Inject(DOCUMENT) private document: Document,
-    @Inject(WINDOW) private window
+    private sanitizer: DomSanitizer,
+    @Inject(DOCUMENT) private document: Document
   ) {
     this.disabled = true;
     this.intro_hide = false;
@@ -100,6 +104,8 @@ export class AppComponent implements OnInit {
       .subscribe(res => {
         // console.log(res);
         this.background = res;
+        this.intro_bg = this.background.pop();
+        this.background.reverse();
         this.render_bg();
       });
     afDb
@@ -107,16 +113,17 @@ export class AppComponent implements OnInit {
       .valueChanges()
       .subscribe(res => {
         res.forEach(data => {
-          this.data.push(data);
+          this.data.push(this.sanitizer.bypassSecurityTrustHtml(data));
         });
         // this.render_page();
       });
   }
 
   render_bg() {
-    this.intro_bg =
-      "url(" + this.background[this.background.length - 1].org + ")";
+    this.intro_bg = "url(" + this.intro_bg.org + ")";
   }
+
+  tap_content() {}
 
   handleDone(event: AnimationTransitionEvent) {
     console.log(event.toState);
@@ -125,7 +132,21 @@ export class AppComponent implements OnInit {
 
   @HostListener("window:scroll", [])
   onWindowScroll() {
-    this.scrolling_offset = this.window.pageYOffset;
+    this.scrolling_offset = window.pageYOffset;
+    // const pin_top = this.pin.nativeElement.getBoundingClientRect();
+    // if (pin_top < 0) console.log("OK");
+    this.pin_trigger.forEach(pin => {
+      if (
+        pin.getBoundingClientRect().top < 0 &&
+        pin.getBoundingClientRect().top > -2000
+      ) {
+        this.document.documentElement.scrollTop = this.scrolling_offset;
+      }
+    });
+  }
+
+  ngAfterViewChecked() {
+    this.pin_trigger = document.querySelectorAll(".pin_trigger");
   }
 
   ngOnInit() {
