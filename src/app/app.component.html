@@ -1,14 +1,21 @@
+<!-- Loading -->
+
+<div class="loading" *ngIf="!loading_hidden">
+  <div class="fade">{{loading_percentage}} %</div>
+  <!-- <paper-progress class="fade" value="{{loading_percentage}}"></paper-progress> -->
+</div>
+
 <!-- Content -->
 
-<div *ngIf="!content_page_show">
+<div *ngIf="content_page_show">
   <div class="bg_container fill">
 
     <div class="bg_content">
-      <div class="bg img fill" *ngFor="let bg of background" [ngStyle]="{'background-image': 'url(' + bg.org + ')'}">
+      <div class="bg img fill" *ngFor="let bg of background; let i = index" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': b[background.length - i - 1]}">
       </div>
     </div>
 
-    <div class="bg filter fill"></div>
+    <div class="bg filter fill" [@hide_filter]="!hide_content ? 'void' : 'on'"></div>
 
     <div class="scroll_hint" [ngStyle]="{'opacity': 1 - scrolling_offset / 100}">
       <span>Scroll down</span>
@@ -18,7 +25,7 @@
 
       <div class="bleed"></div>
 
-      <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'">
+      <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'" [@hide_content]="!hide_content ? 'void' : 'on'">
         <p id="fadein0" class="fadein">
         </p>
         <p id="fadein1" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 1}">
@@ -48,16 +55,16 @@
 
   </div>
 
-  <div class="text text_fadeout" (click)="tap_content()">
+  <div class="text text_fadeout" (click)="hide_content = !hide_content" [@hide_content]="!hide_content ? 'void' : 'on'">
 
-    <div class="bleed"></div>
+    <div class="bleed" (mouseenter)="hide_content = true" (mouseleave)="hide_content = false"></div>
 
     <div class="content">
       <div *ngFor="let item of data" [innerHTML]="item">
       </div>
     </div>
 
-    <div class="bleed"></div>
+    <div class="bleed" (mouseenter)="hide_content = true" (mouseleave)="hide_content = false"></div>
 
   </div>
 </div>
@@ -66,8 +73,8 @@
 
 <!-- Intro -->
 
-<!-- <div class="intro fill" *ngIf="!intro_hide">
-  <div class="intro_bg fill" [style.background-image]="intro_bg" [@bg_intro]="leave ? 'void' : 'on'" (@bg_intro.done)="$event.toState === 'void' && this.intro_hide = true"></div>
+<div class="intro fill" *ngIf="!intro_hide && intro_hidden">
+  <div class="intro_bg fill" [style.background-image]="intro_bg" [@bg_intro]="leave ? 'void' : 'on'" (@bg_intro.done)="$event.toState === 'void' && this.intro_hide = true; loading_hidden = true"></div>
   <div class="filter fill"></div>
   <div class="title">
     <div class="intro_content">
@@ -88,7 +95,9 @@
       </div>
     </div>
   </div>
-</div> -->
+</div>
+
+
 
 <!-- <ul>
   <li *ngFor="let item of items | async">

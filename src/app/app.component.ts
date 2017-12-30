@@ -76,22 +76,41 @@ import { DOCUMENT, DomSanitizer } from "@angular/platform-browser";
       state("on", style({ opacity: 1 })),
       transition(":enter", animate("1s linear")),
       transition(":leave", animate("2s linear", style({ opacity: 0 })))
+    ]),
+    trigger("hide_content", [
+      state("on", style({ opacity: .1 })),
+      transition(":enter", animate("400ms linear")),
+      transition(":leave", animate("400ms linear", style({ opacity: 1 })))
+    ]),
+    trigger("hide_filter", [
+      state("on", style({ opacity: 0 })),
+      transition(":enter", animate("400ms linear")),
+      transition(":leave", animate("400ms linear", style({ opacity: 1 })))
     ])
   ]
 })
 export class AppComponent implements OnInit, AfterViewChecked {
-  disabled: Boolean;
-  leave: Boolean;
+  loading_hidden: boolean;
+  intro_hidden: boolean;
+  content_page_show: boolean;
+  response: any;
+  loading_percentage: number;
+  disabled: boolean;
+  leave: boolean;
   background: any;
+  intro_bg_all: any;
   intro_bg: string;
-  intro_hide: Boolean;
+  intro_hide: boolean;
   data: Array<any> = [];
   scrolling_offset: number;
   pin_point: any;
   pin_trigger: any;
   triggers: string;
   pin_top: number;
+  switch_top: number;
   a: number;
+  b: Array<any> = [];
+  switch: any;
 
   constructor(
     public afDb: AngularFireDatabase,
@@ -100,6 +119,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   ) {
     this.disabled = true;
     this.intro_hide = false;
+    this.a = 0
     this.document.documentElement.scrollTop = 0;
     // const self = this;
     afDb
@@ -108,8 +128,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
       .subscribe(res => {
         // console.log(res);
         this.background = res;
-        this.intro_bg = this.background.pop();
+        this.intro_bg_all = this.background.pop();
         this.background.reverse();
+        this.loading();
         this.render_bg();
       });
     afDb
@@ -124,13 +145,12 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   render_bg() {
-    this.intro_bg = "url(" + this.intro_bg.org + ")";
+    this.intro_bg = "url(" + this.intro_bg_all.org + ")";
   }
 
   tap_content() { }
 
   handleDone(event: AnimationTransitionEvent) {
-    console.log(event.toState);
     if (event.toState === "void") this.intro_hide = true;
   }
 
@@ -140,26 +160,33 @@ export class AppComponent implements OnInit, AfterViewChecked {
     // const pin_top = this.pin.nativeElement.getBoundingClientRect();
     // if (pin_top < 0) console.log("OK");
     this.pin_trigger.forEach(pin => {
-      this.pin_top = pin.getBoundingClientRect().top
+      this.pin_top = pin.getBoundingClientRect().top;
     });
+
+    // console.log(this.switch[0].getBoundingClientRect().top < 300)
+    for (let i = 0; i < this.switch.length; i++) {
+      this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
+    }
     // console.log(1 - (this.pin_top) / 200)
-    this.a = this.pin_top > -200 ? 1 - this.pin_top / 200 : 4 - this.pin_top / -200
-    console.log(this.a)
+    this.a = this.pin_top > -200 ? 1 - this.pin_top / 200 : 4 - this.pin_top / -200;
   }
 
   ngAfterViewChecked() {
     this.pin_point = document.querySelectorAll(".pin_point");
     this.pin_trigger = document.querySelectorAll(".pin_trigger");
+    this.switch = document.querySelectorAll(".switch");
+
     if (!!this.pin_point && !!this.pin_trigger) {
       this.pin_point.forEach(el => {
-        // console.log(el.innerHTML)
-        this.triggers = el.innerHTML
-
-        el.style.color = "#FFFFFF";
-        el.style.gridColumn = "2 / 3";
-        el.style.alignSelf = "center";
-        el.style.zIndex = "0"
-        // el.style.opacity = "0";
+        if (el.parentNode.className !== "bg_container fill") {
+          this.triggers = el.innerHTML
+          el.remove()
+        } else {
+          el.style.color = "#FFFFFF";
+          el.style.gridColumn = "2 / 3";
+          el.style.alignSelf = "center";
+          el.style.zIndex = "0";
+        }
       });
       this.pin_trigger.forEach(el => {
         el.style.height = "1100px"
@@ -167,35 +194,42 @@ export class AppComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  show_console(e) {
+    console.log(e)
+  }
+
+  loading() {
+    const completedPercentage: Array<any> = [];
+    let sum: number;
+    for (let i = 0; i < this.background.length; i++) {
+      const xmlHTTP = new XMLHttpRequest();
+      xmlHTTP.open('GET', this.background[i], true);
+      xmlHTTP.responseType = 'arraybuffer';
+      xmlHTTP.onload = e => {
+        const blob = new Blob([this.response]);
+        const src = window.URL.createObjectURL(blob);
+      };
+      xmlHTTP.onprogress = e => {
+        console.log(e)
+        completedPercentage[i] = e.loaded / e.total * 100;
+        sum = parseInt(completedPercentage.reduce((a, b) => a + b, 0)) / this.background.length;
+        this.loading_percentage = sum;
+        if (sum === 100) {
+          // const loading_animation = this.$$('.loading').animate({ opacity: [1, 0] }, { duration: 1000, fill: 'forwards', delay: 2000 })
+          // loading_animation.onfinish = () => {
+          this.intro_hidden = true;
+          // };
+          console.log('Loading complete')
+        };
+      };
+      xmlHTTP.onloadstart = () => {
+        completedPercentage[i] = 0;
+      };
+      xmlHTTP.send();
+    }
+  }
+
   ngOnInit() {
-    // const completedPercentage = [];
-    // let sum;
-    // for (let i = 0; i < items.length; i++) {
-    //   const xmlHTTP = new XMLHttpRequest();
-    //   xmlHTTP.open('GET', items[i], true);
-    //   xmlHTTP.responseType = 'arraybuffer';
-    //   xmlHTTP.onload = e => {
-    //     let blob = new Blob([this.response]);
-    //     let src = window.URL.createObjectURL(blob);
-    //   };
-    //   xmlHTTP.onprogress = e => {
-    //     completedPercentage[i] = parseInt((e.loaded / e.total) * 100);
-    //     sum = parseInt(completedPercentage.reduce((a, b) => a + b, 0) /
-    //       items.length);
-    //     this.loading_percentage = sum;
-    //     if (sum === 100) {
-    //       // this.intro_hidden = false;
-    //       // const loading_animation = this.$$('.loading').animate({ opacity: [1, 0] }, { duration: 1000, fill: 'forwards', delay: 2000 })
-    //       // loading_animation.onfinish = () => {
-    //       //   this.loading_hidden = true;
-    //       // };
-    //       console.log('Loading complete')
-    //     };
-    //   };
-    //   xmlHTTP.onloadstart = () => {
-    //     completedPercentage[i] = 0;
-    //   };
-    //   xmlHTTP.send();
-    // }
+
   }
 }
