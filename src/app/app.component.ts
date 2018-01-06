@@ -1,7 +1,6 @@
 import {
   Component,
   Input,
-  OnInit,
   ViewChild,
   ElementRef,
   HostListener,
@@ -22,6 +21,7 @@ import { AngularFireDatabase, AngularFireList } from "angularfire2/database";
 import { Observable } from "rxjs/Observable";
 import * as firebase from "firebase/app";
 import { DOCUMENT, DomSanitizer } from "@angular/platform-browser";
+import { NgProgress } from 'ngx-progressbar';
 
 @Component({
   selector: "app-root",
@@ -29,48 +29,24 @@ import { DOCUMENT, DomSanitizer } from "@angular/platform-browser";
   styleUrls: ["./app.component.less", "../assets/fonts/stylesheet.css"],
   animations: [
     trigger("bg_intro", [
-      state("on", style({ opacity: 1, transform: "translateX(-10px)" })),
-      transition(":enter", animate("2s 1s ease-out")),
-      transition(
-        ":leave",
-        animate(
-          ".8s ease-in",
-          style({ opacity: 0, transform: "translateX(-20px)" })
-        )
-      )
+      state("on", style({ opacity: 1, transform: "translateX(-1%)" })),
+      transition(":enter", animate("2s ease-out")),
+      transition(":leave", animate(".8s ease-in", style({ opacity: 0, transform: "translateX(-2%)" })))
     ]),
     trigger("pre", [
       state("on", style({ opacity: 1, transform: "translateY(0)" })),
-      transition(":enter", animate("1s 4s cubic-bezier(0, .5, .5, 1)")),
-      transition(
-        ":leave",
-        animate(
-          ".7s ease-in",
-          style({ opacity: 0, transform: "translateY(-10px)" })
-        )
-      )
+      transition(":enter", animate("1s 2s cubic-bezier(0, .5, .5, 1)")),
+      transition(":leave", animate(".7s ease-in", style({ opacity: 0, transform: "translateY(-10px)" })))
     ]),
     trigger("name", [
       state("on", style({ opacity: 1, transform: "translateY(0)" })),
-      transition(":enter", animate("1s 5s cubic-bezier(0, .5, .5, 1)")),
-      transition(
-        ":leave",
-        animate(
-          ".5s ease-in",
-          style({ opacity: 0, transform: "translateY(-10px)" })
-        )
-      )
+      transition(":enter", animate("1s 3s cubic-bezier(0, .5, .5, 1)")),
+      transition(":leave", animate(".5s ease-in", style({ opacity: 0, transform: "translateY(-10px)" })))
     ]),
     trigger("enter", [
       state("on", style({ opacity: 1, transform: "translateX(0)" })),
-      transition(":enter", animate("300ms 7s cubic-bezier(0, .5, .5, 1)")),
-      transition(
-        ":leave",
-        animate(
-          ".3s ease-in",
-          style({ opacity: 0, transform: "translateX(-5px)" })
-        )
-      )
+      transition(":enter", animate("300ms 5s cubic-bezier(0, .5, .5, 1)")),
+      transition(":leave", animate(".3s ease-in", style({ opacity: 0, transform: "translateX(-5px)" })))
     ]),
     trigger("text", [
       state("on", style({ opacity: 1 })),
@@ -89,9 +65,10 @@ import { DOCUMENT, DomSanitizer } from "@angular/platform-browser";
     ])
   ]
 })
-export class AppComponent implements OnInit, AfterViewChecked {
+export class AppComponent implements AfterViewChecked {
   loading_hidden: boolean;
-  intro_hidden: boolean;
+  title_show: string;
+  intro_show: boolean;
   content_page_show: boolean;
   response: any;
   loading_percentage: number;
@@ -100,8 +77,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
   background: any;
   intro_bg_all: any;
   intro_bg: string;
-  intro_hide: boolean;
   data: Array<any> = [];
+  content_top: number;
   scrolling_offset: number;
   pin_point: any;
   pin_trigger: any;
@@ -111,17 +88,22 @@ export class AppComponent implements OnInit, AfterViewChecked {
   a: number;
   b: Array<any> = [];
   switch: any;
+  switch_unbind: boolean;
+  trigger_unbind: boolean;
 
   constructor(
     public afDb: AngularFireDatabase,
     private sanitizer: DomSanitizer,
-    @Inject(DOCUMENT) private document: Document
+    @Inject(DOCUMENT) private document: Document,
+    public ngProgress: NgProgress
   ) {
+    this.loading_percentage = 0
     this.disabled = true;
-    this.intro_hide = false;
     this.a = 0
     this.document.documentElement.scrollTop = 0;
     // const self = this;
+    this.ngProgress.set(0);
+
     afDb
       .list("background")
       .valueChanges()
@@ -148,25 +130,24 @@ export class AppComponent implements OnInit, AfterViewChecked {
     this.intro_bg = "url(" + this.intro_bg_all.org + ")";
   }
 
-  tap_content() { }
+  // tap_content() { }
 
-  handleDone(event: AnimationTransitionEvent) {
-    if (event.toState === "void") this.intro_hide = true;
-  }
+  @HostListener("scroll", [])
+  scrollevent() {
+    this.scrolling_offset = this.content_top - this.switch[0].getBoundingClientRect().top;
+    for (let i = 0; i < this.switch.length; i++) {
+      this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
+    }
 
-  @HostListener("window:scroll", [])
-  onWindowScroll() {
-    this.scrolling_offset = window.pageYOffset;
     // const pin_top = this.pin.nativeElement.getBoundingClientRect();
     // if (pin_top < 0) console.log("OK");
+
     this.pin_trigger.forEach(pin => {
       this.pin_top = pin.getBoundingClientRect().top;
     });
 
     // console.log(this.switch[0].getBoundingClientRect().top < 300)
-    for (let i = 0; i < this.switch.length; i++) {
-      this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
-    }
+
     // console.log(1 - (this.pin_top) / 200)
     this.a = this.pin_top > -200 ? 1 - this.pin_top / 200 : 4 - this.pin_top / -200;
   }
@@ -176,7 +157,13 @@ export class AppComponent implements OnInit, AfterViewChecked {
     this.pin_trigger = document.querySelectorAll(".pin_trigger");
     this.switch = document.querySelectorAll(".switch");
 
-    if (!!this.pin_point && !!this.pin_trigger) {
+    if (!!this.switch.length && !this.switch_unbind) {
+      this.switch_unbind = true;
+      this.content_top = this.switch[0].getBoundingClientRect().top;
+    }
+
+    if (!!this.pin_point && !!this.pin_trigger && !this.trigger_unbind) {
+      this.trigger_unbind = true;
       this.pin_point.forEach(el => {
         if (el.parentNode.className !== "bg_container fill") {
           this.triggers = el.innerHTML
@@ -199,27 +186,31 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   loading() {
+    this.ngProgress.start();
+
     const completedPercentage: Array<any> = [];
     let sum: number;
     for (let i = 0; i < this.background.length; i++) {
       const xmlHTTP = new XMLHttpRequest();
-      xmlHTTP.open('GET', this.background[i], true);
+      xmlHTTP.open('GET', this.background[i].org, true);
       xmlHTTP.responseType = 'arraybuffer';
       xmlHTTP.onload = e => {
         const blob = new Blob([this.response]);
         const src = window.URL.createObjectURL(blob);
       };
       xmlHTTP.onprogress = e => {
-        console.log(e)
+
         completedPercentage[i] = e.loaded / e.total * 100;
         sum = parseInt(completedPercentage.reduce((a, b) => a + b, 0)) / this.background.length;
         this.loading_percentage = sum;
         if (sum === 100) {
+          this.ngProgress.done();
+
           // const loading_animation = this.$$('.loading').animate({ opacity: [1, 0] }, { duration: 1000, fill: 'forwards', delay: 2000 })
           // loading_animation.onfinish = () => {
-          this.intro_hidden = true;
+          this.intro_show = true;
           // };
-          console.log('Loading complete')
+          // console.log('Loading complete')
         };
       };
       xmlHTTP.onloadstart = () => {
@@ -227,9 +218,17 @@ export class AppComponent implements OnInit, AfterViewChecked {
       };
       xmlHTTP.send();
     }
+
+    // this.ngProgress.start();
+
+
+    // console.log(this.background[0].org)
+    // this.http.get(this.background[0].org).subscribe(res){
+    //   /** request completed */
+    //   console.log('OK')
+    //   this.ngProgress.done();
+    // }
+
   }
 
-  ngOnInit() {
-
-  }
 }

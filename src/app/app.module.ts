@@ -11,6 +11,7 @@ import { AngularFireModule } from "angularfire2";
 
 // New imports to update based on AngularFire2 version 4
 import { AngularFireDatabaseModule } from "angularfire2/database";
+import { NgProgressModule } from 'ngx-progressbar';
 
 export const firebaseConfig = {
   apiKey: "AIzaSyB6tIkSAFsEb8cZQSYq4tlOpuw9DWaF-_E",
@@ -30,9 +31,10 @@ export const firebaseConfig = {
       ? ServiceWorkerModule.register("/ngsw-worker.js")
       : [],
     AngularFireModule.initializeApp(firebaseConfig),
-    AngularFireDatabaseModule
+    AngularFireDatabaseModule,
+    NgProgressModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

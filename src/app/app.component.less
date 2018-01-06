@@ -1,3 +1,6 @@
+@filter: rgba(0, 0, 0, 0.5);
+@button: #333;
+@button_mobile: #ffffff;
 @charset "utf-8";
 .loading {
     width: 100%;
@@ -5,7 +8,7 @@
     min-height: 100%;
     background-color: #000;
     position: fixed;
-    z-index: 100;
+    z-index: -99;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -23,6 +26,19 @@
     position: fixed;
     background-size: cover;
     top: 0;
+    .intro_bg {
+        position: fixed;
+        background-size: cover;
+        top: 0;
+        left: 0;
+        transform: translateX(0);
+        opacity: 0;
+        &.fill {
+            width: 102%;
+            height: 102%;
+            min-height: 102%;
+        }
+    }
     .container {
         width: 100%;
         height: 100%;
@@ -30,20 +46,6 @@
     }
     .title {
         margin: 15% auto 0 auto;
-    }
-}
-
-.intro_bg {
-    position: fixed;
-    background-size: cover;
-    top: 0;
-    left: 0;
-    transform: translateX(0);
-    opacity: 0;
-    &.fill {
-        width: 101%;
-        height: 101%;
-        min-height: 101%;
     }
 }
 
@@ -91,12 +93,13 @@
     .text-right {
         text-align: right;
         .enter {
-            color: #333;
+            color: @button;
             font-size: 12px;
             padding: 20px 15px;
             opacity: 0;
             text-align: right;
             transform: translateX(5px);
+            transition: color .5s linear;
             .arrow {
                 font-size: 1em;
             }
@@ -112,13 +115,16 @@
                     color: #ffffff;
                 }
             }
+            &:hover {
+                color: @button + 50;
+            }
         }
     }
 }
 
 @media (max-width: 1080px) {
     .filter {
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: @filter;
     }
     .title {
         margin: 0 !important;
@@ -141,8 +147,12 @@
         }
     }
     .enter {
-        color: #ffffff;
+        color: @button_mobile !important;
         font-size: 1.5vmax;
+        transition: all .5s linear;
+        &:hover {
+            color: @button_mobile - 50 !important
+        }
     }
 }
 
@@ -156,15 +166,18 @@
 }
 
 // Travel
+.travel {
+    overflow-y: auto;
+}
+
 .bg_container {
-    overflow: auto;
     position: fixed;
     display: grid;
     grid-template-columns: 20% auto 20%;
     grid-template-rows: auto;
     z-index: -999;
     .filter {
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: @filter;
     }
 }
 

@@ -1,106 +1,100 @@
-<!-- Loading -->
+<div class="fill" style="overflow: hidden; position: fixed">
+  <!-- Loading -->
 
-<div class="loading" *ngIf="!loading_hidden">
-  <div class="fade">{{loading_percentage}} %</div>
-  <!-- <paper-progress class="fade" value="{{loading_percentage}}"></paper-progress> -->
-</div>
-
-<!-- Content -->
-
-<div *ngIf="content_page_show">
-  <div class="bg_container fill">
-
-    <div class="bg_content">
-      <div class="bg img fill" *ngFor="let bg of background; let i = index" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': b[background.length - i - 1]}">
-      </div>
-    </div>
-
-    <div class="bg filter fill" [@hide_filter]="!hide_content ? 'void' : 'on'"></div>
-
-    <div class="scroll_hint" [ngStyle]="{'opacity': 1 - scrolling_offset / 100}">
-      <span>Scroll down</span>
-    </div>
-
-    <div class="prologue_box" [ngStyle]="{'opacity': (7500 - scrolling_offset) / 300}">
-
-      <div class="bleed"></div>
-
-      <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'" [@hide_content]="!hide_content ? 'void' : 'on'">
-        <p id="fadein0" class="fadein">
-        </p>
-        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 1}">
-          I still don&#39;t know where this flight will take me.
-        </p>
-        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 2}">
-          I still don&#39;t know where this road will lead me.
-        </p>
-        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 3}">
-          But one thing I know for sure,
-        </p>
-        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 4}">
-          This will change my life forever.
-        </p>
-        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 8}">
-          The night before I left Taiwan, I asked myself over and over again if I have to do this. Yeah, first time being a backpacker.
-          First time traveling alone. First time speaking English. And first time doing everything on my own without any
-          help from travel agencies.
-        </p>
-      </div>
-
-      <div class="bleed"></div>
-
-    </div>
-
-    <div class="pin_point" [innerHTML]="triggers" [ngStyle]="{'opacity': a}"></div>
-
+  <div class="loading" *ngIf="!loading_hidden">
+    <div class="fade">{{loading_percentage}} %</div>
+    <ng-progress></ng-progress>
+    <!-- <paper-progress class="fade" value="{{loading_percentage}}"></paper-progress> -->
   </div>
 
-  <div class="text text_fadeout" (click)="hide_content = !hide_content" [@hide_content]="!hide_content ? 'void' : 'on'">
+  <!-- Content -->
 
-    <div class="bleed" (mouseenter)="hide_content = true" (mouseleave)="hide_content = false"></div>
+  <div class="travel fill" *ngIf="content_page_show" (scroll)="scrollevent()">
+    <div class="bg_container fill">
 
-    <div class="content">
-      <div *ngFor="let item of data" [innerHTML]="item">
-      </div>
-    </div>
-
-    <div class="bleed" (mouseenter)="hide_content = true" (mouseleave)="hide_content = false"></div>
-
-  </div>
-</div>
-
-
-
-<!-- Intro -->
-
-<div class="intro fill" *ngIf="!intro_hide && intro_hidden">
-  <div class="intro_bg fill" [style.background-image]="intro_bg" [@bg_intro]="leave ? 'void' : 'on'" (@bg_intro.done)="$event.toState === 'void' && this.intro_hide = true; loading_hidden = true"></div>
-  <div class="filter fill"></div>
-  <div class="title">
-    <div class="intro_content">
-      <div class="pre" [@pre]="leave ? 'void' : 'on'">
-        <h2>All about my journey. All about my lifestyle.</h2>
-      </div>
-      <div class="name_enter">
-        <div class="name" [@name]="leave ? 'void' : 'on'">
-          <h1>Simon Cheng</h1>
-        </div>
-        <div class="text-right">
-          <button class="enter plain_button" [ngClass]="{'pointer' : !disabled}" [@enter]="leave ? 'void' : 'on'" (@enter.done)="disabled = false"
-            [disabled]="disabled" (click)="disabled = true; leave = true; content_page_show = true">
-            <span class="arrow">►</span>
-            <span class="enter_text">Enter</span>
-          </button>
+      <div class="bg_content">
+        <div class="bg img fill" *ngFor="let bg of background; let i = index" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': b[background.length - i - 1]}">
         </div>
       </div>
+
+      <div class="bg filter fill" [@hide_filter]="!hide_content ? 'void' : 'on'"></div>
+
+      <div class="scroll_hint" [ngStyle]="{'opacity': 1 - scrolling_offset / 100}">
+        <span>Scroll down</span>
+      </div>
+
+      <div class="prologue_box" [ngStyle]="{'opacity': (7500 - scrolling_offset) / 300}">
+
+        <div class="bleed"></div>
+
+        <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'" [@hide_content]="!hide_content ? 'void' : 'on'">
+          <p id="fadein0" class="fadein">
+          </p>
+          <p id="fadein1" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 1}">
+            I still don&#39;t know where this flight will take me.
+          </p>
+          <p id="fadein2" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 2}">
+            I still don&#39;t know where this road will lead me.
+          </p>
+          <p id="fadein3" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 3}">
+            But one thing I know for sure,
+          </p>
+          <p id="fadein4" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 4}">
+            This will change my life forever.
+          </p>
+          <p id="fadein8" class="fadein" [ngStyle]="{'opacity': scrolling_offset / 700 - 8}">
+            The night before I left Taiwan, I asked myself over and over again if I have to do this. Yeah, first time being a backpacker.
+            First time traveling alone. First time speaking English. And first time doing everything on my own without any
+            help from travel agencies.
+          </p>
+        </div>
+
+        <div class="bleed"></div>
+
+      </div>
+
+      <div class="pin_point" [innerHTML]="triggers" [ngStyle]="{'opacity': a}"></div>
+
+    </div>
+
+    <div class="text text_fadeout" (click)="hide_content = !hide_content" [@hide_content]="!hide_content ? 'void' : 'on'">
+
+      <div class="bleed" (mouseenter)="hide_content = true" (mouseleave)="hide_content = false"></div>
+
+      <div class="content">
+        <div *ngFor="let item of data" [innerHTML]="item">
+        </div>
+      </div>
+
+      <div class="bleed" (mouseenter)="hide_content = true" (mouseleave)="hide_content = false"></div>
+
+    </div>
+  </div>
+
+
+
+  <!-- Intro -->
+  <div class="intro fill" *ngIf="intro_show">
+    <div class="intro_bg fill" [style.background-image]="intro_bg" [@bg_intro]="leave ? 'void' : 'on'" (@bg_intro.done)="$event.toState === 'on' && loading_hidden = true; leave && intro_show = false"></div>
+    <div class="filter fill"></div>
+    <div class="title">
+      <div class="intro_content">
+        <div class="pre" [@pre]="leave ? 'void' : 'on'">
+          <h2>All about my journey. All about my lifestyle.</h2>
+        </div>
+        <div class="name_enter">
+          <div class="name" [@name]="leave ? 'void' : 'on'">
+            <h1>Simon Cheng</h1>
+          </div>
+          <div class="text-right">
+            <button class="enter plain_button" [ngClass]="{'pointer' : !disabled}" [@enter]="leave ? 'void' : 'on'" (@enter.done)="!leave && disabled = false"
+              [disabled]="disabled" (click)="disabled = true; leave = true; content_page_show = true">
+              <span class="arrow">►</span>
+              <span class="enter_text">Enter</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
-
-
-<!-- <ul>
-  <li *ngFor="let item of items | async">
-    {{ item }}
-  </li>
-</ul> -->
