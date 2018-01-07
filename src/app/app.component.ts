@@ -1,13 +1,11 @@
 import {
   Component,
-  Input,
   ViewChild,
   ElementRef,
   HostListener,
   Inject,
   AnimationTransitionEvent,
-  Directive,
-  AfterViewChecked
+  AfterViewChecked,
 } from "@angular/core";
 import {
   trigger,
@@ -16,6 +14,7 @@ import {
   animate,
   state
 } from "@angular/animations";
+import { FormGroup, FormControl } from '@angular/forms';
 import { Options } from "selenium-webdriver";
 import { AngularFireDatabase, AngularFireList } from "angularfire2/database";
 import { Observable } from "rxjs/Observable";
@@ -77,7 +76,7 @@ export class AppComponent implements AfterViewChecked {
   background: any;
   intro_bg_all: any;
   intro_bg: string;
-  data: Array<any> = [];
+  data: Object;
   content_top: number;
   scrolling_offset: number;
   pin_point: any;
@@ -90,13 +89,24 @@ export class AppComponent implements AfterViewChecked {
   switch: any;
   switch_unbind: boolean;
   trigger_unbind: boolean;
+  editorContent: Array<any> = [];
+  authorized: boolean;
+  editor_show: Array<any> = [];
+  pass_show: boolean;
+  password_group: FormGroup;
+  editing: boolean;
+  editor_unbind: Array<any> = [];
+  data_db: any;
 
   constructor(
     public afDb: AngularFireDatabase,
     private sanitizer: DomSanitizer,
     @Inject(DOCUMENT) private document: Document,
-    public ngProgress: NgProgress
+    public ngProgress: NgProgress,
   ) {
+    this.password_group = new FormGroup({
+      password: new FormControl()
+    });
     this.loading_percentage = 0
     this.disabled = true;
     this.a = 0
@@ -116,18 +126,25 @@ export class AppComponent implements AfterViewChecked {
         this.render_bg();
       });
     afDb
-      .list("data/en/data")
+      .object("data/en/data")
       .valueChanges()
       .subscribe(res => {
-        res.forEach(data => {
-          this.data.push(data);
-        });
+        this.data = res;
+
         // this.render_page();
       });
+
+    this.data_db = afDb.object("data/en/data")
   }
 
   render_bg() {
     this.intro_bg = "url(" + this.intro_bg_all.org + ")";
+  }
+
+  update_data(content, key) {
+    console.log(key)
+
+    eval('this.data_db.update({ "' + key + '": content })');
   }
 
   // tap_content() { }
@@ -185,6 +202,12 @@ export class AppComponent implements AfterViewChecked {
     console.log(e)
   }
 
+  editor_init(item, i) {
+    this.editor_unbind[i] = true;
+    this.editorContent[i] = item.value
+    // this.editorContent = item;
+  }
+
   loading() {
     this.ngProgress.start();
 
@@ -218,16 +241,6 @@ export class AppComponent implements AfterViewChecked {
       };
       xmlHTTP.send();
     }
-
-    // this.ngProgress.start();
-
-
-    // console.log(this.background[0].org)
-    // this.http.get(this.background[0].org).subscribe(res){
-    //   /** request completed */
-    //   console.log('OK')
-    //   this.ngProgress.done();
-    // }
 
   }
 
