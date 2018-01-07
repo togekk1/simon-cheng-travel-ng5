@@ -179,8 +179,9 @@ export class AppComponent implements AfterViewChecked {
       this.content_top = this.switch[0].getBoundingClientRect().top;
     }
 
-    if (!!this.pin_point && !!this.pin_trigger && !this.trigger_unbind) {
+    if (!!this.pin_point.length && !!this.pin_trigger.length && !this.trigger_unbind) {
       this.trigger_unbind = true;
+
       this.pin_point.forEach(el => {
         if (el.parentNode.className !== "bg_container fill") {
           this.triggers = el.innerHTML
