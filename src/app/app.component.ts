@@ -5,7 +5,7 @@ import {
   HostListener,
   Inject,
   AnimationTransitionEvent,
-  AfterViewChecked,
+  AfterViewChecked
 } from "@angular/core";
 import {
   trigger,
@@ -14,13 +14,17 @@ import {
   animate,
   state
 } from "@angular/animations";
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormGroup, FormControl } from "@angular/forms";
 import { Options } from "selenium-webdriver";
-import { AngularFireDatabase, AngularFireList } from "angularfire2/database";
+import {
+  AngularFirestore,
+  AngularFirestoreCollection
+} from "angularfire2/firestore";
+// import { AngularFireDatabase, AngularFireList } from "angularfire2/database";
 import { Observable } from "rxjs/Observable";
 import * as firebase from "firebase/app";
 import { DOCUMENT, DomSanitizer } from "@angular/platform-browser";
-import { NgProgress } from 'ngx-progressbar';
+import { NgProgress } from "ngx-progressbar";
 
 @Component({
   selector: "app-root",
@@ -30,22 +34,46 @@ import { NgProgress } from 'ngx-progressbar';
     trigger("bg_intro", [
       state("on", style({ opacity: 1, transform: "translateX(-1%)" })),
       transition(":enter", animate("2s ease-out")),
-      transition(":leave", animate(".8s ease-in", style({ opacity: 0, transform: "translateX(-2%)" })))
+      transition(
+        ":leave",
+        animate(
+          ".8s ease-in",
+          style({ opacity: 0, transform: "translateX(-2%)" })
+        )
+      )
     ]),
     trigger("pre", [
       state("on", style({ opacity: 1, transform: "translateY(0)" })),
       transition(":enter", animate("1s 2s cubic-bezier(0, .5, .5, 1)")),
-      transition(":leave", animate(".7s ease-in", style({ opacity: 0, transform: "translateY(-10px)" })))
+      transition(
+        ":leave",
+        animate(
+          ".7s ease-in",
+          style({ opacity: 0, transform: "translateY(-10px)" })
+        )
+      )
     ]),
     trigger("name", [
       state("on", style({ opacity: 1, transform: "translateY(0)" })),
       transition(":enter", animate("1s 3s cubic-bezier(0, .5, .5, 1)")),
-      transition(":leave", animate(".5s ease-in", style({ opacity: 0, transform: "translateY(-10px)" })))
+      transition(
+        ":leave",
+        animate(
+          ".5s ease-in",
+          style({ opacity: 0, transform: "translateY(-10px)" })
+        )
+      )
     ]),
     trigger("enter", [
       state("on", style({ opacity: 1, transform: "translateX(0)" })),
       transition(":enter", animate("300ms 5s cubic-bezier(0, .5, .5, 1)")),
-      transition(":leave", animate(".3s ease-in", style({ opacity: 0, transform: "translateX(-5px)" })))
+      transition(
+        ":leave",
+        animate(
+          ".3s ease-in",
+          style({ opacity: 0, transform: "translateX(-5px)" })
+        )
+      )
     ]),
     trigger("text", [
       state("on", style({ opacity: 1 })),
@@ -53,7 +81,7 @@ import { NgProgress } from 'ngx-progressbar';
       transition(":leave", animate("2s linear", style({ opacity: 0 })))
     ]),
     trigger("hide_content", [
-      state("on", style({ opacity: .1 })),
+      state("on", style({ opacity: 0.1 })),
       transition(":enter", animate("400ms linear")),
       transition(":leave", animate("400ms linear", style({ opacity: 1 })))
     ]),
@@ -70,10 +98,10 @@ export class AppComponent implements AfterViewChecked {
   intro_show: boolean;
   content_page_show: boolean;
   response: any;
-  loading_percentage: number;
+  loading_percentage: string;
   disabled: boolean;
   leave: boolean;
-  background: any;
+  background: Array<any>;
   intro_bg_all: any;
   intro_bg: string;
   data: Object;
@@ -97,53 +125,59 @@ export class AppComponent implements AfterViewChecked {
   editing: boolean;
   editor_unbind: Array<any> = [];
   data_db: any;
+  // private bgCollection: AngularFirestoreCollection<Item>;
+  // bg: Observable<Item>;
 
   constructor(
-    public afDb: AngularFireDatabase,
+    public afDb: AngularFirestore,
     private sanitizer: DomSanitizer,
     @Inject(DOCUMENT) private document: Document,
-    public ngProgress: NgProgress,
+    public ngProgress: NgProgress
   ) {
     this.password_group = new FormGroup({
       password: new FormControl()
     });
-    this.loading_percentage = 0
+    this.loading_percentage = "0";
     this.disabled = true;
-    this.a = 0
+    this.a = 0;
     this.document.documentElement.scrollTop = 0;
     // const self = this;
     this.ngProgress.set(0);
 
     afDb
-      .list("background")
+      .collection("travel")
       .valueChanges()
-      .subscribe(res => {
-        // console.log(res);
-        this.background = res;
-        this.intro_bg_all = this.background.pop();
+      .subscribe((res: Object) => {
+        this.data = res[0].data;
+        this.background = res[0].background;
+        this.intro_bg_all = this.background.shift();
         this.background.reverse();
         this.loading();
         this.render_bg();
       });
-    afDb
-      .object("data/en/data")
-      .valueChanges()
-      .subscribe(res => {
-        this.data = res;
+    // afDb
+    //   .collection("data/en/data")
+    //   .valueChanges()
+    //   .subscribe(res => {
+    //     this.data = res;
 
-        // this.render_page();
-      });
+    //     // this.render_page();
+    //   });
 
-    this.data_db = afDb.object("data/en/data")
+    // this.data_db = afDb.collection("data/en/data");
   }
 
   render_bg() {
     this.intro_bg = "url(" + this.intro_bg_all.org + ")";
   }
 
-  update_data(content, key) {
-    console.log(key)
+  editor_init(item, i) {
+    this.editor_unbind[i] = true;
+    this.editorContent[i] = item.en;
+  }
 
+  update_data(content, key) {
+    console.log(key);
     eval('this.data_db.update({ "' + key + '": content })');
   }
 
@@ -151,7 +185,8 @@ export class AppComponent implements AfterViewChecked {
 
   @HostListener("scroll", [])
   scrollevent() {
-    this.scrolling_offset = this.content_top - this.switch[0].getBoundingClientRect().top;
+    this.scrolling_offset =
+      this.content_top - this.switch[0].getBoundingClientRect().top;
     for (let i = 0; i < this.switch.length; i++) {
       this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
     }
@@ -166,7 +201,8 @@ export class AppComponent implements AfterViewChecked {
     // console.log(this.switch[0].getBoundingClientRect().top < 300)
 
     // console.log(1 - (this.pin_top) / 200)
-    this.a = this.pin_top > -200 ? 1 - this.pin_top / 200 : 4 - this.pin_top / -200;
+    this.a =
+      this.pin_top > -200 ? 1 - this.pin_top / 200 : 4 - this.pin_top / -200;
   }
 
   ngAfterViewChecked() {
@@ -179,13 +215,17 @@ export class AppComponent implements AfterViewChecked {
       this.content_top = this.switch[0].getBoundingClientRect().top;
     }
 
-    if (!!this.pin_point.length && !!this.pin_trigger.length && !this.trigger_unbind) {
+    if (
+      !!this.pin_point.length &&
+      !!this.pin_trigger.length &&
+      !this.trigger_unbind
+    ) {
       this.trigger_unbind = true;
 
       this.pin_point.forEach(el => {
         if (el.parentNode.className !== "bg_container fill") {
-          this.triggers = el.innerHTML
-          el.remove()
+          this.triggers = el.innerHTML;
+          el.remove();
         } else {
           el.style.color = "#FFFFFF";
           el.style.gridColumn = "2 / 3";
@@ -194,19 +234,13 @@ export class AppComponent implements AfterViewChecked {
         }
       });
       this.pin_trigger.forEach(el => {
-        el.style.height = "1100px"
+        el.style.height = "1100px";
       });
     }
   }
 
   show_console(e) {
-    console.log(e)
-  }
-
-  editor_init(item, i) {
-    this.editor_unbind[i] = true;
-    this.editorContent[i] = item.value
-    // this.editorContent = item;
+    console.log(e);
   }
 
   loading() {
@@ -216,17 +250,18 @@ export class AppComponent implements AfterViewChecked {
     let sum: number;
     for (let i = 0; i < this.background.length; i++) {
       const xmlHTTP = new XMLHttpRequest();
-      xmlHTTP.open('GET', this.background[i].org, true);
-      xmlHTTP.responseType = 'arraybuffer';
+      xmlHTTP.open("GET", this.background[i].org, true);
+      xmlHTTP.responseType = "arraybuffer";
       xmlHTTP.onload = e => {
         const blob = new Blob([this.response]);
         const src = window.URL.createObjectURL(blob);
       };
       xmlHTTP.onprogress = e => {
-
         completedPercentage[i] = e.loaded / e.total * 100;
-        sum = parseInt(completedPercentage.reduce((a, b) => a + b, 0)) / this.background.length;
-        this.loading_percentage = sum;
+        sum =
+          parseInt(completedPercentage.reduce((a, b) => a + b, 0)) /
+          this.background.length;
+        this.loading_percentage = sum.toFixed(0);
         if (sum === 100) {
           this.ngProgress.done();
 
@@ -235,14 +270,12 @@ export class AppComponent implements AfterViewChecked {
           this.intro_show = true;
           // };
           // console.log('Loading complete')
-        };
+        }
       };
       xmlHTTP.onloadstart = () => {
         completedPercentage[i] = 0;
       };
       xmlHTTP.send();
     }
-
   }
-
 }

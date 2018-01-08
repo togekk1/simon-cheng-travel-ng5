@@ -63,9 +63,9 @@
       </div>
 
       <div class="content">
-        <div *ngFor="let item of data | keys; let i = index">
-          <i *ngIf="authorized" class="fa fa-pencil pointer" (click)="$event.stopPropagation(); editor_show[i] && update_data(editorContent[i], item.key); editor_show[i] = !editor_show[i]; editing = !editing"></i>
-          <div *ngIf="!editor_show[i]" [innerHTML]="item.value" [ngInit]="!editor_unbind[i] && editor_init(item, i)"></div>
+        <div *ngFor="let item of data.australia; let i = index">
+          <i *ngIf="authorized" class="fa fa-pencil pointer" (click)="$event.stopPropagation(); editor_show[i] && update_data(editorContent[i], i); editor_show[i] = !editor_show[i]; editing = !editing"></i>
+          <div *ngIf="!editor_show[i]" [innerHTML]="item.en" [ngInit]="!editor_unbind[i] && editor_init(item, i)"></div>
           <div *ngIf="authorized && editor_show[i]" [froalaEditor] [(froalaModel)]="editorContent[i]" (click)="$event.stopPropagation()"></div>
         </div>
       </div>

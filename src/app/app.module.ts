@@ -5,15 +5,16 @@ import { ServiceWorkerModule } from "@angular/service-worker";
 import { AppComponent } from "./app.component";
 import { environment } from "../environments/environment";
 import { AngularFireModule } from "angularfire2";
-import { KeysPipe } from './app.pipe';
+import { AngularFirestoreModule } from "angularfire2/firestore";
+import { KeysPipe } from "./app.pipe";
 
 // New imports to update based on AngularFire2 version 4
 import { AngularFireDatabaseModule } from "angularfire2/database";
-import { NgProgressModule } from 'ngx-progressbar';
-import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AutofocusDirective } from './app.directive';
-import { NgInitDirective } from './nginit.directive';
+import { NgProgressModule } from "ngx-progressbar";
+import { FroalaEditorModule, FroalaViewModule } from "angular-froala-wysiwyg";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { AutofocusDirective } from "./app.directive";
+import { NgInitDirective } from "./nginit.directive";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyB6tIkSAFsEb8cZQSYq4tlOpuw9DWaF-_E",
@@ -25,12 +26,7 @@ export const firebaseConfig = {
 };
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    AutofocusDirective,
-    NgInitDirective,
-    KeysPipe
-  ],
+  declarations: [AppComponent, AutofocusDirective, NgInitDirective, KeysPipe],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -39,6 +35,7 @@ export const firebaseConfig = {
       : [],
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireDatabaseModule,
+    AngularFirestoreModule.enablePersistence(),
     NgProgressModule,
     FroalaEditorModule.forRoot(),
     FroalaViewModule.forRoot(),
@@ -48,4 +45,4 @@ export const firebaseConfig = {
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
