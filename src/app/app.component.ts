@@ -125,6 +125,7 @@ export class AppComponent implements AfterViewChecked {
   editing: boolean;
   editor_unbind: Array<any> = [];
   data_db: any;
+  db_org: any;
   // private bgCollection: AngularFirestoreCollection<Item>;
   // bg: Observable<Item>;
 
@@ -144,31 +145,49 @@ export class AppComponent implements AfterViewChecked {
     // const self = this;
     this.ngProgress.set(0);
 
-    afDb
-      .collection("travel")
-      .valueChanges()
-      .subscribe((res: Object) => {
-        this.data = res[0].data;
-        this.background = res[0].background;
-        this.intro_bg_all = this.background.shift();
-        this.background.reverse();
-        this.loading();
-        this.render_bg();
-      });
-    // afDb
-    //   .collection("data/en/data")
-    //   .valueChanges()
-    //   .subscribe(res => {
-    //     this.data = res;
+    this.data_db = afDb.collection("travel").doc("travel");
 
-    //     // this.render_page();
-    //   });
-
-    // this.data_db = afDb.collection("data/en/data");
+    this.data_db.valueChanges().subscribe((res: any) => {
+      this.db_org = res;
+      this.loading();
+    });
   }
 
-  render_bg() {
+  loading() {
+    this.background = this.db_org.background;
+    this.intro_bg_all = this.background.shift();
+    this.background.reverse();
     this.intro_bg = "url(" + this.intro_bg_all.org + ")";
+    console.log(this.db_org);
+
+    this.ngProgress.start();
+
+    const completedPercentage: Array<any> = [];
+    let sum: number;
+    for (let i = 0; i < this.background.length; i++) {
+      const xmlHTTP = new XMLHttpRequest();
+      xmlHTTP.open("GET", this.background[i].org, true);
+      xmlHTTP.responseType = "arraybuffer";
+      xmlHTTP.onload = e => {
+        const blob = new Blob([this.response]);
+        const src = window.URL.createObjectURL(blob);
+      };
+      xmlHTTP.onprogress = e => {
+        completedPercentage[i] = e.loaded / e.total * 100;
+        sum =
+          parseInt(completedPercentage.reduce((a, b) => a + b, 0)) /
+          this.background.length;
+        this.loading_percentage = sum.toFixed(0);
+        if (sum === 100) {
+          this.ngProgress.done();
+          this.intro_show = true;
+        }
+      };
+      xmlHTTP.onloadstart = () => {
+        completedPercentage[i] = 0;
+      };
+      xmlHTTP.send();
+    }
   }
 
   editor_init(item, i) {
@@ -176,12 +195,11 @@ export class AppComponent implements AfterViewChecked {
     this.editorContent[i] = item.en;
   }
 
-  update_data(content, key) {
-    console.log(key);
-    eval('this.data_db.update({ "' + key + '": content })');
+  update_data(content, i) {
+    this.db_org.data.australia[i].en = content;
+    console.log(this.db_org);
+    // this.data_db.set(this.db_org);
   }
-
-  // tap_content() { }
 
   @HostListener("scroll", [])
   scrollevent() {
@@ -191,16 +209,9 @@ export class AppComponent implements AfterViewChecked {
       this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
     }
 
-    // const pin_top = this.pin.nativeElement.getBoundingClientRect();
-    // if (pin_top < 0) console.log("OK");
-
     this.pin_trigger.forEach(pin => {
       this.pin_top = pin.getBoundingClientRect().top;
     });
-
-    // console.log(this.switch[0].getBoundingClientRect().top < 300)
-
-    // console.log(1 - (this.pin_top) / 200)
     this.a =
       this.pin_top > -200 ? 1 - this.pin_top / 200 : 4 - this.pin_top / -200;
   }
@@ -241,41 +252,5 @@ export class AppComponent implements AfterViewChecked {
 
   show_console(e) {
     console.log(e);
-  }
-
-  loading() {
-    this.ngProgress.start();
-
-    const completedPercentage: Array<any> = [];
-    let sum: number;
-    for (let i = 0; i < this.background.length; i++) {
-      const xmlHTTP = new XMLHttpRequest();
-      xmlHTTP.open("GET", this.background[i].org, true);
-      xmlHTTP.responseType = "arraybuffer";
-      xmlHTTP.onload = e => {
-        const blob = new Blob([this.response]);
-        const src = window.URL.createObjectURL(blob);
-      };
-      xmlHTTP.onprogress = e => {
-        completedPercentage[i] = e.loaded / e.total * 100;
-        sum =
-          parseInt(completedPercentage.reduce((a, b) => a + b, 0)) /
-          this.background.length;
-        this.loading_percentage = sum.toFixed(0);
-        if (sum === 100) {
-          this.ngProgress.done();
-
-          // const loading_animation = this.$$('.loading').animate({ opacity: [1, 0] }, { duration: 1000, fill: 'forwards', delay: 2000 })
-          // loading_animation.onfinish = () => {
-          this.intro_show = true;
-          // };
-          // console.log('Loading complete')
-        }
-      };
-      xmlHTTP.onloadstart = () => {
-        completedPercentage[i] = 0;
-      };
-      xmlHTTP.send();
-    }
   }
 }
