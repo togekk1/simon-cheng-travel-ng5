@@ -126,8 +126,9 @@ export class AppComponent implements AfterViewChecked {
   editor_unbind: Array<any> = [];
   data_db: any;
   db_org: any;
-  // private bgCollection: AngularFirestoreCollection<Item>;
-  // bg: Observable<Item>;
+  password: string;
+  editor_show_new: boolean;
+  editorContent_new: string;
 
   constructor(
     public afDb: AngularFirestore,
@@ -142,24 +143,33 @@ export class AppComponent implements AfterViewChecked {
     this.disabled = true;
     this.a = 0;
     this.document.documentElement.scrollTop = 0;
-    // const self = this;
     this.ngProgress.set(0);
 
-    this.data_db = afDb.collection("travel").doc("travel");
-
-    this.data_db.valueChanges().subscribe((res: any) => {
-      this.db_org = res;
+    afDb.doc("travel/background").valueChanges().subscribe((res: any) => {
+      this.background = res.background;
+      this.intro_bg_all = this.background.shift();
+      this.background.reverse();
+      this.intro_bg = "url(" + this.intro_bg_all.org + ")";
       this.loading();
     });
+
+    afDb.doc("travel/password").valueChanges().subscribe((res: any) => {
+      this.password = res.password;
+    });
+
+    this.data_db = afDb.collection("travel/data/australia", ref => ref.orderBy('timestamp'));
+
+    this.data = this.data_db.snapshotChanges().map(actions => {
+      return actions.map(action => {
+        const data = action.payload.doc.data();
+        const id = action.payload.doc.id;
+        return { id, ...data };
+      });
+    });
+
   }
 
   loading() {
-    this.background = this.db_org.background;
-    this.intro_bg_all = this.background.shift();
-    this.background.reverse();
-    this.intro_bg = "url(" + this.intro_bg_all.org + ")";
-    console.log(this.db_org);
-
     this.ngProgress.start();
 
     const completedPercentage: Array<any> = [];
@@ -195,10 +205,13 @@ export class AppComponent implements AfterViewChecked {
     this.editorContent[i] = item.en;
   }
 
-  update_data(content, i) {
-    this.db_org.data.australia[i].en = content;
-    console.log(this.db_org);
-    // this.data_db.set(this.db_org);
+  add_data(content) {
+    this.data_db.add({ en: content, timestamp: new Date() });
+  }
+
+  update_data(content, item) {
+    this.data_db.doc(item.id).set({ en: content, timestamp: item.timestamp });
+    // this.data_db.set(this.data);
   }
 
   @HostListener("scroll", [])

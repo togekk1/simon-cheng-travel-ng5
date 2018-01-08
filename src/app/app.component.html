@@ -63,10 +63,14 @@
       </div>
 
       <div class="content">
-        <div *ngFor="let item of db_org.australia; let i = index">
-          <i *ngIf="authorized" class="fa fa-pencil pointer" (click)="$event.stopPropagation(); editor_show[i] && update_data(editorContent[i], i); editor_show[i] = !editor_show[i]; editing = !editing"></i>
+        <div *ngFor="let item of data | async; let i = index">
+          <i *ngIf="authorized" class="fa fa-pencil pointer" (click)="$event.stopPropagation(); editor_show[i] && update_data(editorContent[i], item); editor_show[i] = !editor_show[i]; editing = !editing"></i>
           <div *ngIf="!editor_show[i]" [innerHTML]="item.en" [ngInit]="!editor_unbind[i] && editor_init(item, i)"></div>
           <div *ngIf="authorized && editor_show[i]" [froalaEditor] [(froalaModel)]="editorContent[i]" (click)="$event.stopPropagation()"></div>
+        </div>
+        <div>
+          <i *ngIf="authorized" class="fa fa-plus pointer" (click)="$event.stopPropagation(); editor_show_new && add_data(editorContent_new); editor_show_new = !editor_show_new; editing = !editing"></i>
+          <div *ngIf="authorized && editor_show_new" [froalaEditor] [(froalaModel)]="editorContent_new" (click)="$event.stopPropagation()"></div>
         </div>
       </div>
 
@@ -82,7 +86,7 @@
     <div class="intro_bg fill" [style.background-image]="intro_bg" [@bg_intro]="leave ? 'void' : 'on'" (@bg_intro.done)="$event.toState === 'on' && loading_hidden = true; leave && intro_show = false"></div>
     <div class="filter fill"></div>
     <div class="password">
-      <form [formGroup]="password_group" (ngSubmit)="pass_show = false; password_group.value.password === '1' && authorized = true">
+      <form [formGroup]="password_group" (ngSubmit)="pass_show = false; password_group.value.password === password && authorized = true">
         <input formControlName="password" *ngIf="pass_show" appAutofocus (keyup.esc)="pass_show = false">
         <button class="pointer" style="opacity: 0" type="submit" *ngIf="pass_show">me</button>
         <button class="pointer" style="opacity: 0" type="button" (click)="pass_show = true" *ngIf="!pass_show">me</button>
