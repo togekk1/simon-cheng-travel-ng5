@@ -145,19 +145,27 @@ export class AppComponent implements AfterViewChecked {
     this.document.documentElement.scrollTop = 0;
     this.ngProgress.set(0);
 
-    afDb.doc("travel/background").valueChanges().subscribe((res: any) => {
-      this.background = res.background;
-      this.intro_bg_all = this.background.shift();
-      this.background.reverse();
-      this.intro_bg = "url(" + this.intro_bg_all.org + ")";
-      this.loading();
-    });
+    afDb
+      .doc("travel/background")
+      .valueChanges()
+      .subscribe((res: any) => {
+        this.background = res.background;
+        this.intro_bg_all = this.background.shift();
+        this.background.reverse();
+        this.intro_bg = "url(" + this.intro_bg_all.org + ")";
+        this.loading();
+      });
 
-    afDb.doc("travel/password").valueChanges().subscribe((res: any) => {
-      this.password = res.password;
-    });
+    afDb
+      .doc("travel/password")
+      .valueChanges()
+      .subscribe((res: any) => {
+        this.password = res.password;
+      });
 
-    this.data_db = afDb.collection("travel/data/australia", ref => ref.orderBy('timestamp'));
+    this.data_db = afDb.collection("travel/data/australia", ref =>
+      ref.orderBy("timestamp")
+    );
 
     this.data = this.data_db.snapshotChanges().map(actions => {
       return actions.map(action => {
@@ -166,7 +174,6 @@ export class AppComponent implements AfterViewChecked {
         return { id, ...data };
       });
     });
-
   }
 
   loading() {
@@ -211,7 +218,6 @@ export class AppComponent implements AfterViewChecked {
 
   update_data(content, item) {
     this.data_db.doc(item.id).set({ en: content, timestamp: item.timestamp });
-    // this.data_db.set(this.data);
   }
 
   @HostListener("scroll", [])
