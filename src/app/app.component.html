@@ -51,9 +51,13 @@
 
         <div class="bleed"></div>
 
+
       </div>
 
-      <div class="pin_point" [innerHTML]="triggers" [ngStyle]="{'opacity': a}"></div>
+      <div [ngStyle]="{'opacity': a}">
+        <div class="insert_here"></div>
+      </div>
+      <!-- <div class="pin_point" *ngFor="let trigger of triggers" [innerHTML]="trigger" [ngStyle]="{'opacity': a}"></div> -->
 
     </div>
 
@@ -62,16 +66,27 @@
       <div class="bleed" (mouseenter)="hide_content = !editing" (mouseleave)="hide_content = false">
       </div>
 
+
       <div class="content">
-        <div *ngFor="let item of data | async; let i = index">
-          <i *ngIf="authorized" class="fa fa-pencil pointer" (click)="$event.stopPropagation(); editor_show[i] && update_data(editorContent[i], item); editor_show[i] = !editor_show[i]; editing = !editing"></i>
-          <div *ngIf="!editor_show[i]" [innerHTML]="item.en" [ngInit]="!editor_unbind[i] && editor_init(item, i)"></div>
-          <div *ngIf="authorized && editor_show[i]" [froalaEditor] [(froalaModel)]="editorContent[i]" (click)="$event.stopPropagation()"></div>
-        </div>
         <div>
-          <i *ngIf="authorized" class="fa fa-plus pointer" (click)="$event.stopPropagation(); editor_show_new && add_data(editorContent_new); editor_show_new = !editor_show_new; editing = !editing"></i>
-          <div *ngIf="authorized && editor_show_new" [froalaEditor] [(froalaModel)]="editorContent_new" (click)="$event.stopPropagation()"></div>
+          <div class="session" *ngFor="let item of data | async; let i = index">
+            <app-content-tools *ngIf="authorized" (save)="update_data($event, item, i)" (click)="authorized && $event.stopPropagation()">
+              <!-- <i *ngIf="authorized" class="fa fa-pencil pointer" (click)="$event.stopPropagation(); editor_show[i] && update_data(editorContent[i], item); editor_show[i] = !editor_show[i]; editing = !editing"></i> -->
+              <div data-editable [attr.data-name]="'content' + i" [innerHTML]="item.en"></div>
+            </app-content-tools>
+            <div *ngIf="!authorized" [innerHTML]="item.en"></div>
+            <!-- <div *ngIf="authorized && editor_show[i]" [froalaEditor] [(froalaModel)]="editorContent[i]" (click)="$event.stopPropagation()"></div> -->
+          </div>
         </div>
+
+        <div *ngIf="authorized">
+          <!-- <i class="fa fa-plus pointer" data-editable data-name="main-content" (click)="$event.stopPropagation(); editor_show_new && add_data(editorContent_new); editor_show_new = !editor_show_new; editing = !editing"></i> -->
+          <app-content-tools (save)="add_data($event)" (click)="authorized && $event.stopPropagation()">
+            <div data-editable data-name="content_new" [innerHTML]="editorContent_new"></div>
+            <!-- <div *ngIf="authorized && editor_show_new" [froalaEditor] [(froalaModel)]="editorContent_new" (click)="$event.stopPropagation()"></div> -->
+          </app-content-tools>
+        </div>
+
       </div>
 
       <div class="bleed" (mouseenter)="hide_content = true" (mouseleave)="hide_content = false"></div>

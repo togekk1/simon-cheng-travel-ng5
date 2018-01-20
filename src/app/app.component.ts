@@ -25,6 +25,7 @@ import { Observable } from "rxjs/Observable";
 import * as firebase from "firebase/app";
 import { DOCUMENT, DomSanitizer } from "@angular/platform-browser";
 import { NgProgress } from "ngx-progressbar";
+import { log } from "util";
 
 @Component({
   selector: "app-root",
@@ -109,7 +110,8 @@ export class AppComponent implements AfterViewChecked {
   scrolling_offset: number;
   pin_point: any;
   pin_trigger: any;
-  triggers: string;
+  pin_trigger_new: any;
+  triggers: Array<any> = [];
   pin_top: number;
   switch_top: number;
   a: number;
@@ -129,12 +131,14 @@ export class AppComponent implements AfterViewChecked {
   password: string;
   editor_show_new: boolean;
   editorContent_new: string;
+  post: Object;
+  editorState = false;
 
   constructor(
     public afDb: AngularFirestore,
     private sanitizer: DomSanitizer,
     @Inject(DOCUMENT) private document: Document,
-    public ngProgress: NgProgress
+    public ngProgress: NgProgress,
   ) {
     this.password_group = new FormGroup({
       password: new FormControl()
@@ -195,9 +199,9 @@ export class AppComponent implements AfterViewChecked {
           parseInt(completedPercentage.reduce((a, b) => a + b, 0)) /
           this.background.length;
         this.loading_percentage = sum.toFixed(0);
+        this.intro_show = completedPercentage[0] === 100;
         if (sum === 100) {
           this.ngProgress.done();
-          this.intro_show = true;
         }
       };
       xmlHTTP.onloadstart = () => {
@@ -207,17 +211,25 @@ export class AppComponent implements AfterViewChecked {
     }
   }
 
-  editor_init(item, i) {
-    this.editor_unbind[i] = true;
-    this.editorContent[i] = item.en;
-  }
+  // editor_init(item, i) {
+  //   this.editor_unbind[i] = true;
+  //   this.editorContent[i] = item.en;
+  // }
 
   add_data(content) {
-    this.data_db.add({ en: content, timestamp: new Date() });
+    const content_new = content.content_new;
+    if (!!content_new) {
+      this.data_db.add({ en: content_new, timestamp: new Date() });
+      this.editorContent_new = null;
+    }
   }
 
-  update_data(content, item) {
-    this.data_db.doc(item.id).set({ en: content, timestamp: item.timestamp });
+  update_data(content, item, id) {
+    const content_new = eval('content.content' + id);
+    if (!!content_new) {
+      this.data_db.doc(item.id).set({ en: content_new, timestamp: item.timestamp });
+    }
+
   }
 
   @HostListener("scroll", [])
@@ -248,25 +260,31 @@ export class AppComponent implements AfterViewChecked {
     if (
       !!this.pin_point.length &&
       !!this.pin_trigger.length &&
-      !this.trigger_unbind
+      !this.trigger_unbind &&
+      !this.authorized
     ) {
       this.trigger_unbind = true;
 
+      const insert_here = document.querySelector(".insert_here");
+      const a = <HTMLScriptElement>insert_here.parentNode;
+      a.style.color = "#FFFFFF";
+      // a.style.gridColumn = "2 / 3";
+      a.style.alignSelf = "center";
+      a.style.zIndex = "0";
+      a.style.lineHeight = "2em";
+
       this.pin_point.forEach(el => {
-        if (el.parentNode.className !== "bg_container fill") {
-          this.triggers = el.innerHTML;
-          el.remove();
-        } else {
-          el.style.color = "#FFFFFF";
-          el.style.gridColumn = "2 / 3";
-          el.style.alignSelf = "center";
-          el.style.zIndex = "0";
-        }
+        this.insert_after(insert_here, el);
       });
+
       this.pin_trigger.forEach(el => {
         el.style.height = "1100px";
       });
     }
+  }
+
+  insert_after(referenceNode, newNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
 
   show_console(e) {
