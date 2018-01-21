@@ -117,8 +117,10 @@ export class AppComponent implements AfterViewChecked {
   b: Array<any> = [];
   bg_selected = 0;
   switch: any;
+  hidden: any;
   switch_unbind: boolean;
   trigger_unbind: boolean;
+  hidden_unbind: boolean;
   editorContent: Array<any> = [];
   authorized: boolean;
   editor_show: Array<any> = [];
@@ -245,21 +247,18 @@ export class AppComponent implements AfterViewChecked {
     this.bg_selected = this.b.findIndex(i => i > 0);
     this.bg_selected === -1 && (this.bg_selected = this.b.length);
 
-    // const pin_top = new Int8Array(this.pin_trigger.length);
-
     this.pin_trigger.forEach((pin, index) => {
       const a = pin.getBoundingClientRect().top;
       const b = a > -200 ? 1 - a / 200 : 4 - a / -200;
       this.pin_opacity[index] = b >= 0 ? b : 0;
     });
-
-
   }
 
   ngAfterViewChecked() {
-    this.pin_point = document.querySelectorAll(".pin_point");
-    this.pin_trigger = document.querySelectorAll(".pin_trigger");
-    this.switch = document.querySelectorAll(".switch");
+    this.pin_point = document.querySelectorAll('.pin_point');
+    this.pin_trigger = document.querySelectorAll('.pin_trigger');
+    this.switch = document.querySelectorAll('.switch');
+    this.hidden = document.querySelectorAll('.hidden');
 
     if (!!this.switch.length && !this.switch_unbind) {
       this.switch_unbind = true;
@@ -274,31 +273,22 @@ export class AppComponent implements AfterViewChecked {
     ) {
       this.trigger_unbind = true;
 
-      // const insert_here = document.querySelector(".insert_here");
-      // const a = <HTMLScriptElement>insert_here.parentNode;
-      // a.style.color = "#FFFFFF";
-      // // a.style.gridColumn = "2 / 3";
-      // a.style.alignSelf = "center";
-      // a.style.zIndex = "0";
-      // a.style.lineHeight = "2em";
-
-      this.pin_point.forEach(el => {
-        // this.insert_after(insert_here, el);
-        this.triggers.push(el.innerHTML);
+      this.triggers = Array.prototype.map.call(this.pin_point, el => {
+        const a = el.innerHTML;
         el.remove();
+        return a;
       });
 
       this.pin_trigger.forEach(el => {
-        el.style.height = "1100px";
+        el.style.height = '1100px';
       });
     }
-  }
 
-  insert_after(referenceNode, newNode) {
-    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-  }
-
-  show_console(e) {
-    console.log(e);
+    if (!!this.hidden.length && !this.hidden_unbind && !this.authorized) {
+      this.hidden_unbind = true;
+      this.hidden.forEach(el => {
+        el.style.opacity = '0';
+      });
+    }
   }
 }
