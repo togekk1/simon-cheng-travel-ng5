@@ -76,7 +76,7 @@
         <div>
           <div class="session" *ngFor="let item of data | async; let i = index">
             <app-content-tools *ngIf="authorized" (save)="update_data($event, item, i)" (click)="authorized && $event.stopPropagation()">
-              <!-- <i *ngIf="authorized" class="fa fa-pencil pointer" (click)="$event.stopPropagation(); editor_show[i] && update_data(editorContent[i], item); editor_show[i] = !editor_show[i]; editing = !editing"></i> -->
+              <i *ngIf="authorized" class="fa fa-trash pointer" (click)="$event.stopPropagation(); delete_data(item)"></i>
               <div data-editable [attr.data-name]="'content' + i" [innerHTML]="item.en"></div>
             </app-content-tools>
             <div *ngIf="!authorized" [innerHTML]="item.en"></div>

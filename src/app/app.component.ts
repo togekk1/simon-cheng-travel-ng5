@@ -228,8 +228,12 @@ export class AppComponent implements AfterViewChecked {
     if (!!content_new) {
       this.data_db.doc(item.id).set({ en: content_new, timestamp: item.timestamp });
     }
-
   }
+
+  delete_data(item) {
+    this.data_db.doc(item.id).delete();
+  }
+
 
   @HostListener("scroll", [])
   scrollevent() {
@@ -281,6 +285,7 @@ export class AppComponent implements AfterViewChecked {
       this.pin_point.forEach(el => {
         // this.insert_after(insert_here, el);
         this.triggers.push(el.innerHTML);
+        el.remove();
       });
 
       this.pin_trigger.forEach(el => {
