@@ -115,6 +115,7 @@ export class AppComponent implements AfterViewChecked {
   switch_top: number;
   pin_opacity: Array<any> = [];
   b: Array<any> = [];
+  bg_selected = 0;
   switch: any;
   switch_unbind: boolean;
   trigger_unbind: boolean;
@@ -237,7 +238,8 @@ export class AppComponent implements AfterViewChecked {
     for (let i = 0; i < this.switch.length; i++) {
       this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
     }
-
+    this.bg_selected = this.b.findIndex(i => i > 0);
+    this.bg_selected === -1 && (this.bg_selected = this.b.length);
 
     // const pin_top = new Int8Array(this.pin_trigger.length);
 

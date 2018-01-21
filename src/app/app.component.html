@@ -13,7 +13,10 @@
     <div class="bg_container fill">
 
       <div class="bg_content">
-        <div class="bg img fill" *ngFor="let bg of background; let i = index" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': b[background.length - i - 1]}">
+        <div class="fill" *ngFor="let bg of background; let i = index">
+          <div class="bg img" *ngIf="background.length - i - 1 >= bg_selected - 1 && background.length - i - 1 <= bg_selected + 1"
+            [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': b[background.length - i - 1]}">
+          </div>
         </div>
       </div>
 
