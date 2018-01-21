@@ -54,10 +54,12 @@
 
       </div>
 
-      <div [ngStyle]="{'opacity': a}">
+      <!-- <div [ngStyle]="{'opacity': pin_opacity}">
         <div class="insert_here"></div>
+      </div> -->
+      <div class="pin_point" *ngFor="let trigger of triggers; let i = index">
+        <span *ngIf="pin_opacity[i] >= -0.5" [ngStyle]="{ 'opacity' : pin_opacity[i] }" [innerHTML]="trigger"></span>
       </div>
-      <!-- <div class="pin_point" *ngFor="let trigger of triggers" [innerHTML]="trigger" [ngStyle]="{'opacity': a}"></div> -->
 
     </div>
 

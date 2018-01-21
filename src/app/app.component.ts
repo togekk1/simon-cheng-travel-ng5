@@ -112,9 +112,8 @@ export class AppComponent implements AfterViewChecked {
   pin_trigger: any;
   pin_trigger_new: any;
   triggers: Array<any> = [];
-  pin_top: number;
   switch_top: number;
-  a: number;
+  pin_opacity: Array<any> = [];
   b: Array<any> = [];
   switch: any;
   switch_unbind: boolean;
@@ -145,7 +144,6 @@ export class AppComponent implements AfterViewChecked {
     });
     this.loading_percentage = "0";
     this.disabled = true;
-    this.a = 0;
     this.document.documentElement.scrollTop = 0;
     this.ngProgress.set(0);
 
@@ -240,11 +238,16 @@ export class AppComponent implements AfterViewChecked {
       this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
     }
 
-    this.pin_trigger.forEach(pin => {
-      this.pin_top = pin.getBoundingClientRect().top;
+
+    // const pin_top = new Int8Array(this.pin_trigger.length);
+
+    this.pin_trigger.forEach((pin, index) => {
+      const a = pin.getBoundingClientRect().top;
+      const b = a > -200 ? 1 - a / 200 : 4 - a / -200;
+      this.pin_opacity[index] = b >= 0 ? b : 0;
     });
-    this.a =
-      this.pin_top > -200 ? 1 - this.pin_top / 200 : 4 - this.pin_top / -200;
+
+
   }
 
   ngAfterViewChecked() {
@@ -265,16 +268,17 @@ export class AppComponent implements AfterViewChecked {
     ) {
       this.trigger_unbind = true;
 
-      const insert_here = document.querySelector(".insert_here");
-      const a = <HTMLScriptElement>insert_here.parentNode;
-      a.style.color = "#FFFFFF";
-      // a.style.gridColumn = "2 / 3";
-      a.style.alignSelf = "center";
-      a.style.zIndex = "0";
-      a.style.lineHeight = "2em";
+      // const insert_here = document.querySelector(".insert_here");
+      // const a = <HTMLScriptElement>insert_here.parentNode;
+      // a.style.color = "#FFFFFF";
+      // // a.style.gridColumn = "2 / 3";
+      // a.style.alignSelf = "center";
+      // a.style.zIndex = "0";
+      // a.style.lineHeight = "2em";
 
       this.pin_point.forEach(el => {
-        this.insert_after(insert_here, el);
+        // this.insert_after(insert_here, el);
+        this.triggers.push(el.innerHTML);
       });
 
       this.pin_trigger.forEach(el => {
