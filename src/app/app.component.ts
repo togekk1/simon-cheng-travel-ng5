@@ -5,7 +5,8 @@ import {
   HostListener,
   Inject,
   AnimationTransitionEvent,
-  AfterViewChecked
+  AfterViewChecked,
+  NgZone
 } from "@angular/core";
 import {
   trigger,
@@ -94,13 +95,14 @@ import { log } from "util";
   ]
 })
 export class AppComponent implements AfterViewChecked {
+  db: AngularFirestore;
   loading_hidden: boolean;
   title_show: string;
   intro_show: boolean;
   content_page_show: boolean;
   response: any;
-  loading_percentage: string;
-  disabled: boolean;
+  loading_percentage: string = "0";
+  disabled: boolean = true;
   leave: boolean;
   background: Array<any>;
   intro_bg_all: any;
@@ -141,42 +143,42 @@ export class AppComponent implements AfterViewChecked {
     private sanitizer: DomSanitizer,
     @Inject(DOCUMENT) private document: Document,
     public ngProgress: NgProgress,
+    private zone: NgZone
   ) {
-    this.password_group = new FormGroup({
-      password: new FormControl()
-    });
-    this.loading_percentage = "0";
-    this.disabled = true;
-    this.document.documentElement.scrollTop = 0;
-    this.ngProgress.set(0);
-
-    afDb
-      .doc("travel/background")
-      .valueChanges()
-      .subscribe((res: any) => {
-        this.background = res.background;
-        this.intro_bg_all = this.background.shift();
-        this.background.reverse();
-        this.intro_bg = "url(" + this.intro_bg_all.org + ")";
-        this.loading();
+    this.zone.runOutsideAngular(() => {
+      this.password_group = new FormGroup({
+        password: new FormControl()
       });
+      this.document.documentElement.scrollTop = 0;
+      this.ngProgress.set(0);
+      afDb
+        .doc("travel/background")
+        .valueChanges()
+        .subscribe((res: any) => {
+          this.background = res.background;
+          this.intro_bg_all = this.background.shift();
+          this.background.reverse();
+          this.intro_bg = "url(" + this.intro_bg_all.org + ")";
+          this.loading();
+        });
 
-    afDb
-      .doc("travel/password")
-      .valueChanges()
-      .subscribe((res: any) => {
-        this.password = res.password;
-      });
+      afDb
+        .doc("travel/password")
+        .valueChanges()
+        .subscribe((res: any) => {
+          this.password = res.password;
+        });
 
-    this.data_db = afDb.collection("travel/data/australia", ref =>
-      ref.orderBy("timestamp")
-    );
+      this.data_db = afDb.collection("travel/data/australia", ref =>
+        ref.orderBy("timestamp")
+      );
 
-    this.data = this.data_db.snapshotChanges().map(actions => {
-      return actions.map(action => {
-        const data = action.payload.doc.data();
-        const id = action.payload.doc.id;
-        return { id, ...data };
+      this.data = this.data_db.snapshotChanges().map(actions => {
+        return actions.map(action => {
+          const data = action.payload.doc.data();
+          const id = action.payload.doc.id;
+          return { id, ...data };
+        });
       });
     });
   }
@@ -184,32 +186,36 @@ export class AppComponent implements AfterViewChecked {
   loading() {
     this.ngProgress.start();
 
-    const completedPercentage: Array<any> = [];
-    let sum: number;
-    for (let i = 0; i < this.background.length; i++) {
-      const xmlHTTP = new XMLHttpRequest();
-      xmlHTTP.open("GET", this.background[i].org, true);
-      xmlHTTP.responseType = "arraybuffer";
-      xmlHTTP.onload = e => {
-        const blob = new Blob([this.response]);
-        const src = window.URL.createObjectURL(blob);
-      };
-      xmlHTTP.onprogress = e => {
-        completedPercentage[i] = e.loaded / e.total * 100;
-        sum =
-          parseInt(completedPercentage.reduce((a, b) => a + b, 0)) /
-          this.background.length;
-        this.loading_percentage = sum.toFixed(0);
-        this.intro_show = completedPercentage[0] === 100;
-        if (sum === 100) {
-          this.ngProgress.done();
-        }
-      };
-      xmlHTTP.onloadstart = () => {
-        completedPercentage[i] = 0;
-      };
-      xmlHTTP.send();
-    }
+    this.zone.runOutsideAngular(() => {
+      const completedPercentage: Array<any> = [];
+      let sum: number;
+      for (let i = 0; i < this.background.length; i++) {
+        const xmlHTTP = new XMLHttpRequest();
+        xmlHTTP.open("GET", this.background[i].org, true);
+        xmlHTTP.responseType = "arraybuffer";
+        xmlHTTP.onload = e => {
+          const blob = new Blob([this.response]);
+          const src = window.URL.createObjectURL(blob);
+        };
+        xmlHTTP.onprogress = e => {
+          completedPercentage[i] = e.loaded / e.total * 100;
+          sum =
+            parseInt(completedPercentage.reduce((a, b) => a + b, 0)) /
+            this.background.length;
+          this.zone.run(() => {
+            this.loading_percentage = sum.toFixed(0);
+            this.intro_show = completedPercentage[0] === 100;
+            if (sum === 100) {
+              this.ngProgress.done();
+            }
+          });
+        };
+        xmlHTTP.onloadstart = () => {
+          completedPercentage[i] = 0;
+        };
+        xmlHTTP.send();
+      }
+    });
   }
 
   // editor_init(item, i) {
@@ -218,77 +224,89 @@ export class AppComponent implements AfterViewChecked {
   // }
 
   add_data(content) {
-    const content_new = content.content_new;
-    if (!!content_new) {
-      this.data_db.add({ en: content_new, timestamp: new Date() });
-      this.editorContent_new = null;
-    }
+    this.zone.runOutsideAngular(() => {
+      const content_new = content.content_new;
+      if (!!content_new) {
+        this.data_db.add({ en: content_new, timestamp: new Date() });
+        this.editorContent_new = null;
+      }
+    });
   }
 
   update_data(content, item, id) {
-    const content_new = eval('content.content' + id);
-    if (!!content_new) {
-      this.data_db.doc(item.id).set({ en: content_new, timestamp: item.timestamp });
-    }
+    this.zone.runOutsideAngular(() => {
+      const content_new = eval("content.content" + id);
+      if (!!content_new) {
+        this.data_db
+          .doc(item.id)
+          .set({ en: content_new, timestamp: item.timestamp });
+      }
+    });
   }
 
   delete_data(item) {
-    this.data_db.doc(item.id).delete();
+    this.zone.runOutsideAngular(() => {
+      this.data_db.doc(item.id).delete();
+    });
   }
-
 
   @HostListener("scroll", [])
   scrollevent() {
-    this.scrolling_offset =
-      this.content_top - this.switch[0].getBoundingClientRect().top;
-    for (let i = 0; i < this.switch.length; i++) {
-      this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
-    }
-    this.bg_selected = this.b.findIndex(i => i > 0);
-    this.bg_selected === -1 && (this.bg_selected = this.b.length);
+    this.zone.runOutsideAngular(() => {
+      this.scrolling_offset =
+        this.content_top - this.switch[0].getBoundingClientRect().top;
 
-    this.pin_trigger.forEach((pin, index) => {
-      const a = pin.getBoundingClientRect().top;
-      const b = a > -200 ? 1 - a / 200 : 4 - a / -200;
-      this.pin_opacity[index] = b >= 0 ? b : 0;
+      for (let i = 0; i < this.switch.length; i++) {
+        this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
+      }
+      this.bg_selected = this.b.findIndex(i => i > 0);
+      this.bg_selected === -1 && (this.bg_selected = this.b.length);
+
+      this.pin_trigger.forEach((pin, index) => {
+        const a = pin.getBoundingClientRect().top;
+        const b = a > -200 ? 1 - a / 200 : 4 - a / -200;
+        this.pin_opacity[index] = b >= 0 ? b : 0;
+      });
     });
   }
 
   ngAfterViewChecked() {
-    this.pin_point = document.querySelectorAll('.pin_point');
-    this.pin_trigger = document.querySelectorAll('.pin_trigger');
-    this.switch = document.querySelectorAll('.switch');
-    this.hidden = document.querySelectorAll('.hidden');
+    this.zone.runOutsideAngular(() => {
+      this.pin_point = document.querySelectorAll(".pin_point");
+      this.pin_trigger = document.querySelectorAll(".pin_trigger");
+      this.switch = document.querySelectorAll(".switch");
+      this.hidden = document.querySelectorAll(".hidden");
 
-    if (!!this.switch.length && !this.switch_unbind) {
-      this.switch_unbind = true;
-      this.content_top = this.switch[0].getBoundingClientRect().top;
-    }
+      if (!!this.switch.length && !this.switch_unbind) {
+        this.switch_unbind = true;
+        this.content_top = this.switch[0].getBoundingClientRect().top;
+      }
 
-    if (
-      !!this.pin_point.length &&
-      !!this.pin_trigger.length &&
-      !this.trigger_unbind &&
-      !this.authorized
-    ) {
-      this.trigger_unbind = true;
+      if (
+        !!this.pin_point.length &&
+        !!this.pin_trigger.length &&
+        !this.trigger_unbind &&
+        !this.authorized
+      ) {
+        this.trigger_unbind = true;
 
-      this.triggers = Array.prototype.map.call(this.pin_point, el => {
-        const a = el.innerHTML;
-        el.remove();
-        return a;
-      });
+        this.triggers = Array.prototype.map.call(this.pin_point, el => {
+          const a = el.innerHTML;
+          el.remove();
+          return a;
+        });
 
-      this.pin_trigger.forEach(el => {
-        el.style.height = '1100px';
-      });
-    }
+        this.pin_trigger.forEach(el => {
+          el.style.height = "1100px";
+        });
+      }
 
-    if (!!this.hidden.length && !this.hidden_unbind && !this.authorized) {
-      this.hidden_unbind = true;
-      this.hidden.forEach(el => {
-        el.style.opacity = '0';
-      });
-    }
+      if (!!this.hidden.length && !this.hidden_unbind && !this.authorized) {
+        this.hidden_unbind = true;
+        this.hidden.forEach(el => {
+          el.style.opacity = "0";
+        });
+      }
+    });
   }
 }

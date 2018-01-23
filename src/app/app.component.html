@@ -13,7 +13,7 @@
     <div class="bg_container fill">
 
       <div class="bg_content">
-        <div class="fill" *ngFor="let bg of background; let i = index">
+        <div class="fill" *ngFor="let bg of background; trackBy:index; let i = index">
           <div class="bg img" *ngIf="background.length - i - 1 >= bg_selected - 1 && background.length - i - 1 <= bg_selected + 1"
             [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': b[background.length - i - 1]}">
           </div>
@@ -60,7 +60,7 @@
       <!-- <div [ngStyle]="{'opacity': pin_opacity}">
         <div class="insert_here"></div>
       </div> -->
-      <div class="pin_point" *ngFor="let trigger of triggers; let i = index">
+      <div class="pin_point" *ngFor="let trigger of triggers; trackBy:index; let i = index">
         <span *ngIf="pin_opacity[i] >= -0.5" [ngStyle]="{ 'opacity' : pin_opacity[i] }" [innerHTML]="trigger"></span>
       </div>
 
@@ -74,7 +74,7 @@
 
       <div class="content">
         <div>
-          <div class="session" *ngFor="let item of data | async; let i = index">
+          <div class="session" *ngFor="let item of data | async; trackBy:item?.id; let i = index">
             <app-content-tools *ngIf="authorized" (save)="update_data($event, item, i)" (click)="authorized && $event.stopPropagation()">
               <i *ngIf="authorized" class="fa fa-trash pointer" (click)="$event.stopPropagation(); delete_data(item)"></i>
               <div data-editable [attr.data-name]="'content' + i" [innerHTML]="item.en"></div>

@@ -1,16 +1,14 @@
-import { Directive, AfterViewInit, ElementRef } from '@angular/core';
+import { Directive, AfterViewInit, ElementRef, NgZone } from "@angular/core";
 
 @Directive({
-    selector: '[appAutofocus]'
+  selector: "[appAutofocus]"
 })
-
 export class AutofocusDirective implements AfterViewInit {
+  constructor(private el: ElementRef, private zone: NgZone) {}
 
-    constructor(private el: ElementRef) {
-    }
-
-    ngAfterViewInit() {
-        this.el.nativeElement.focus();
-    }
-
+  ngAfterViewInit() {
+    this.zone.runOutsideAngular(() => {
+      this.el.nativeElement.focus();
+    });
+  }
 }
