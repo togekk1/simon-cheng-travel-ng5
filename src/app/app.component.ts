@@ -137,6 +137,7 @@ export class AppComponent implements AfterViewChecked {
   editorContent_new: string;
   post: Object;
   editorState = false;
+  wasm: any;
 
   constructor(
     public afDb: AngularFirestore,
@@ -145,11 +146,25 @@ export class AppComponent implements AfterViewChecked {
     public ngProgress: NgProgress,
     private zone: NgZone
   ) {
+
+
     this.zone.runOutsideAngular(() => {
+
+      // WASM
+      const importObject = { imports: { imported_func: arg => console.log(arg) } };
+      fetch('assets/webassembly.wasm').then(response =>
+        response.arrayBuffer()
+      ).then(bytes =>
+        WebAssembly.instantiate(bytes, importObject)
+        ).then(results => {
+          this.wasm = results.instance.exports;
+        });
+
       this.password_group = new FormGroup({
         password: new FormControl()
       });
       this.document.documentElement.scrollTop = 0;
+      this.scrolling_offset = 0
       this.ngProgress.set(0);
       afDb
         .doc("travel/background")
@@ -263,9 +278,7 @@ export class AppComponent implements AfterViewChecked {
       this.bg_selected === -1 && (this.bg_selected = this.b.length);
 
       this.pin_trigger.forEach((pin, index) => {
-        const a = pin.getBoundingClientRect().top;
-        const b = a > -200 ? 1 - a / 200 : 4 - a / -200;
-        this.pin_opacity[index] = b >= 0 ? b : 0;
+        this.pin_opacity[index] = this.wasm.render_trigger(pin.getBoundingClientRect().top);
       });
     });
   }
