@@ -241,24 +241,29 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
   }
 
   update_data(content, item, id) {
+    this.new_hide = true;
     this.zone.runOutsideAngular(() => {
-      this.new_hide = true;
       if (item !== 'new') {
         const content_new = eval('content.content' + id);
         if (!!content_new) {
           this.data_db
             .doc(item.id)
-            .set({ en: content_new, timestamp: item.timestamp });
+            .set({ en: content_new, timestamp: item.timestamp })
+            .then(res => this.zone.run(() => this.new_hide = false));
+        } else {
+          this.zone.run(() => this.new_hide = false);
         }
       } else {
         const content_new = content.content_new;
-        if (!!content_new) {
+        if (!!content_new && content_new !== '') {
           this.data_db
             .add({ en: content_new, timestamp: new Date() })
             .then(res => {
               this.editorContent_new = null;
-              this.new_hide = false;
+              this.zone.run(() => this.new_hide = false);
             });
+        } else {
+          this.zone.run(() => this.new_hide = false);
         }
       }
     });
@@ -266,10 +271,11 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
 
   delete_data(item) {
     this.zone.runOutsideAngular(() => {
+      this.new_hide = true;
       this.data_db.doc(item.id)
         .delete()
         .then(res => {
-          this.editorState = true;
+          this.zone.run(() => this.new_hide = false);
         });
     });
   }
