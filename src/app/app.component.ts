@@ -6,103 +6,106 @@ import {
   Inject,
   AnimationTransitionEvent,
   AfterViewChecked,
-  NgZone
-} from "@angular/core";
+  NgZone,
+  OnDestroy
+} from '@angular/core';
 import {
   trigger,
   style,
   transition,
   animate,
   state
-} from "@angular/animations";
-import { FormGroup, FormControl } from "@angular/forms";
-import { Options } from "selenium-webdriver";
+} from '@angular/animations';
+import { FormGroup, FormControl } from '@angular/forms';
+import { Options } from 'selenium-webdriver';
 import {
   AngularFirestore,
   AngularFirestoreCollection
-} from "angularfire2/firestore";
-// import { AngularFireDatabase, AngularFireList } from "angularfire2/database";
-import { Observable } from "rxjs/Observable";
-import * as firebase from "firebase/app";
-import { DOCUMENT, DomSanitizer } from "@angular/platform-browser";
-import { NgProgress } from "ngx-progressbar";
-import { log } from "util";
+} from 'angularfire2/firestore';
+// import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { Observable } from 'rxjs/Observable';
+import * as firebase from 'firebase/app';
+import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
+import { NgProgress } from 'ngx-progressbar';
+import 'rxjs/add/operator/takeUntil';
+import { Subject } from 'rxjs/Subject';
+import { log } from 'util';
 
 @Component({
-  selector: "app-root",
-  templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.less", "../assets/fonts/stylesheet.css"],
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.less', '../assets/fonts/stylesheet.css'],
   animations: [
-    trigger("bg_intro", [
-      state("on", style({ opacity: 1, transform: "translateX(-1%)" })),
-      transition(":enter", animate("2s ease-out")),
+    trigger('bg_intro', [
+      state('on', style({ opacity: 1, transform: 'translateX(-1%)' })),
+      transition(':enter', animate('2s ease-out')),
       transition(
-        ":leave",
+        ':leave',
         animate(
-          ".8s ease-in",
-          style({ opacity: 0, transform: "translateX(-2%)" })
+          '.8s ease-in',
+          style({ opacity: 0, transform: 'translateX(-2%)' })
         )
       )
     ]),
-    trigger("pre", [
-      state("on", style({ opacity: 1, transform: "translateY(0)" })),
-      transition(":enter", animate("1s 2s cubic-bezier(0, .5, .5, 1)")),
+    trigger('pre', [
+      state('on', style({ opacity: 1, transform: 'translateY(0)' })),
+      transition(':enter', animate('1s 2s cubic-bezier(0, .5, .5, 1)')),
       transition(
-        ":leave",
+        ':leave',
         animate(
-          ".7s ease-in",
-          style({ opacity: 0, transform: "translateY(-10px)" })
+          '.7s ease-in',
+          style({ opacity: 0, transform: 'translateY(-10px)' })
         )
       )
     ]),
-    trigger("name", [
-      state("on", style({ opacity: 1, transform: "translateY(0)" })),
-      transition(":enter", animate("1s 3s cubic-bezier(0, .5, .5, 1)")),
+    trigger('name', [
+      state('on', style({ opacity: 1, transform: 'translateY(0)' })),
+      transition(':enter', animate('1s 3s cubic-bezier(0, .5, .5, 1)')),
       transition(
-        ":leave",
+        ':leave',
         animate(
-          ".5s ease-in",
-          style({ opacity: 0, transform: "translateY(-10px)" })
+          '.5s ease-in',
+          style({ opacity: 0, transform: 'translateY(-10px)' })
         )
       )
     ]),
-    trigger("enter", [
-      state("on", style({ opacity: 1, transform: "translateX(0)" })),
-      transition(":enter", animate("300ms 5s cubic-bezier(0, .5, .5, 1)")),
+    trigger('enter', [
+      state('on', style({ opacity: 1, transform: 'translateX(0)' })),
+      transition(':enter', animate('300ms 5s cubic-bezier(0, .5, .5, 1)')),
       transition(
-        ":leave",
+        ':leave',
         animate(
-          ".3s ease-in",
-          style({ opacity: 0, transform: "translateX(-5px)" })
+          '.3s ease-in',
+          style({ opacity: 0, transform: 'translateX(-5px)' })
         )
       )
     ]),
-    trigger("text", [
-      state("on", style({ opacity: 1 })),
-      transition(":enter", animate("1s linear")),
-      transition(":leave", animate("2s linear", style({ opacity: 0 })))
+    trigger('text', [
+      state('on', style({ opacity: 1 })),
+      transition(':enter', animate('1s linear')),
+      transition(':leave', animate('2s linear', style({ opacity: 0 })))
     ]),
-    trigger("hide_content", [
-      state("on", style({ opacity: 0.1 })),
-      transition(":enter", animate("400ms linear")),
-      transition(":leave", animate("400ms linear", style({ opacity: 1 })))
+    trigger('hide_content', [
+      state('on', style({ opacity: 0.1 })),
+      transition(':enter', animate('400ms linear')),
+      transition(':leave', animate('400ms linear', style({ opacity: 1 })))
     ]),
-    trigger("hide_filter", [
-      state("on", style({ opacity: 0 })),
-      transition(":enter", animate("400ms linear")),
-      transition(":leave", animate("400ms linear", style({ opacity: 1 })))
+    trigger('hide_filter', [
+      state('on', style({ opacity: 0 })),
+      transition(':enter', animate('400ms linear')),
+      transition(':leave', animate('400ms linear', style({ opacity: 1 })))
     ])
   ]
 })
-export class AppComponent implements AfterViewChecked {
+export class AppComponent implements AfterViewChecked, OnDestroy {
   db: AngularFirestore;
   loading_hidden: boolean;
   title_show: string;
   intro_show: boolean;
   content_page_show: boolean;
   response: any;
-  loading_percentage: string = "0";
-  disabled: boolean = true;
+  loading_percentage = '0';
+  disabled = true;
   leave: boolean;
   background: Array<any>;
   intro_bg_all: any;
@@ -115,7 +118,7 @@ export class AppComponent implements AfterViewChecked {
   pin_trigger_new: any;
   triggers: Array<any> = [];
   switch_top: number;
-  pin_opacity: Array<any> = [];
+  pin_opacity: Float32Array;
   b: Array<any> = [];
   bg_selected = 0;
   switch: any;
@@ -125,30 +128,32 @@ export class AppComponent implements AfterViewChecked {
   hidden_unbind: boolean;
   editorContent: Array<any> = [];
   authorized: boolean;
-  editor_show: Array<any> = [];
   pass_show: boolean;
   password_group: FormGroup;
   editing: boolean;
-  editor_unbind: Array<any> = [];
   data_db: any;
   db_org: any;
   password: string;
-  editor_show_new: boolean;
   editorContent_new: string;
   post: Object;
   editorState = false;
   wasm: any;
+  scroll_hint_top: number;
+  prologue_box_top: number;
+  fadein: Float32Array;
+  private ngUnsubscribe: Subject<any> = new Subject();
+  new_hide: boolean;
 
   constructor(
     public afDb: AngularFirestore,
     private sanitizer: DomSanitizer,
     @Inject(DOCUMENT) private document: Document,
     public ngProgress: NgProgress,
-    private zone: NgZone
+    private zone: NgZone,
   ) {
 
-
     this.zone.runOutsideAngular(() => {
+      this.fadein = new Float32Array(5);
 
       // WASM
       const importObject = { imports: { imported_func: arg => console.log(arg) } };
@@ -164,28 +169,30 @@ export class AppComponent implements AfterViewChecked {
         password: new FormControl()
       });
       this.document.documentElement.scrollTop = 0;
-      this.scrolling_offset = 0
+      this.scrolling_offset = 0;
       this.ngProgress.set(0);
       afDb
-        .doc("travel/background")
+        .doc('travel/background')
         .valueChanges()
+        .takeUntil(this.ngUnsubscribe)
         .subscribe((res: any) => {
           this.background = res.background;
           this.intro_bg_all = this.background.shift();
           this.background.reverse();
-          this.intro_bg = "url(" + this.intro_bg_all.org + ")";
+          this.intro_bg = 'url(' + this.intro_bg_all.org + ')';
           this.loading();
         });
 
       afDb
-        .doc("travel/password")
+        .doc('travel/password')
         .valueChanges()
+        .takeUntil(this.ngUnsubscribe)
         .subscribe((res: any) => {
           this.password = res.password;
         });
 
-      this.data_db = afDb.collection("travel/data/australia", ref =>
-        ref.orderBy("timestamp")
+      this.data_db = afDb.collection('travel/data/australia', ref =>
+        ref.orderBy('timestamp')
       );
 
       this.data = this.data_db.snapshotChanges().map(actions => {
@@ -206,8 +213,8 @@ export class AppComponent implements AfterViewChecked {
       let sum: number;
       for (let i = 0; i < this.background.length; i++) {
         const xmlHTTP = new XMLHttpRequest();
-        xmlHTTP.open("GET", this.background[i].org, true);
-        xmlHTTP.responseType = "arraybuffer";
+        xmlHTTP.open('GET', this.background[i].org, true);
+        xmlHTTP.responseType = 'arraybuffer';
         xmlHTTP.onload = e => {
           const blob = new Blob([this.response]);
           const src = window.URL.createObjectURL(blob);
@@ -233,39 +240,41 @@ export class AppComponent implements AfterViewChecked {
     });
   }
 
-  // editor_init(item, i) {
-  //   this.editor_unbind[i] = true;
-  //   this.editorContent[i] = item.en;
-  // }
-
-  add_data(content) {
-    this.zone.runOutsideAngular(() => {
-      const content_new = content.content_new;
-      if (!!content_new) {
-        this.data_db.add({ en: content_new, timestamp: new Date() });
-        this.editorContent_new = null;
-      }
-    });
-  }
-
   update_data(content, item, id) {
     this.zone.runOutsideAngular(() => {
-      const content_new = eval("content.content" + id);
-      if (!!content_new) {
-        this.data_db
-          .doc(item.id)
-          .set({ en: content_new, timestamp: item.timestamp });
+      this.new_hide = true;
+      if (item !== 'new') {
+        const content_new = eval('content.content' + id);
+        if (!!content_new) {
+          this.data_db
+            .doc(item.id)
+            .set({ en: content_new, timestamp: item.timestamp });
+        }
+      } else {
+        const content_new = content.content_new;
+        if (!!content_new) {
+          this.data_db
+            .add({ en: content_new, timestamp: new Date() })
+            .then(res => {
+              this.editorContent_new = null;
+              this.new_hide = false;
+            });
+        }
       }
     });
   }
 
   delete_data(item) {
     this.zone.runOutsideAngular(() => {
-      this.data_db.doc(item.id).delete();
+      this.data_db.doc(item.id)
+        .delete()
+        .then(res => {
+          this.editorState = true;
+        });
     });
   }
 
-  @HostListener("scroll", [])
+  @HostListener('scroll', [])
   scrollevent() {
     this.zone.runOutsideAngular(() => {
       this.scrolling_offset =
@@ -280,19 +289,33 @@ export class AppComponent implements AfterViewChecked {
       this.pin_trigger.forEach((pin, index) => {
         this.pin_opacity[index] = this.wasm.render_trigger(pin.getBoundingClientRect().top);
       });
+
+      this.scroll_hint_top = this.wasm.render_scroll_hint(this.scrolling_offset);
+      this.prologue_box_top = this.wasm.render_prologue_box(this.scrolling_offset);
+
+      for (let i = 0; i < 3; i++) {
+        this.fadein[i] = this.wasm.render_fadein(this.scrolling_offset, i + 1);
+      }
+
+      this.fadein[4] = this.wasm.render_fadein(this.scrolling_offset, 8);
+
     });
   }
 
   ngAfterViewChecked() {
     this.zone.runOutsideAngular(() => {
-      this.pin_point = document.querySelectorAll(".pin_point");
-      this.pin_trigger = document.querySelectorAll(".pin_trigger");
-      this.switch = document.querySelectorAll(".switch");
-      this.hidden = document.querySelectorAll(".hidden");
+      this.pin_point = document.querySelectorAll('.pin_point');
+      this.pin_trigger = document.querySelectorAll('.pin_trigger');
+      this.switch = document.querySelectorAll('.switch');
+      this.hidden = document.querySelectorAll('.hidden');
 
       if (!!this.switch.length && !this.switch_unbind) {
         this.switch_unbind = true;
         this.content_top = this.switch[0].getBoundingClientRect().top;
+      }
+
+      if (!!this.pin_trigger.length) {
+        this.pin_opacity = new Float32Array(this.pin_trigger.length);
       }
 
       if (
@@ -310,16 +333,23 @@ export class AppComponent implements AfterViewChecked {
         });
 
         this.pin_trigger.forEach(el => {
-          el.style.height = "1100px";
+          el.style.height = '1100px';
         });
       }
 
       if (!!this.hidden.length && !this.hidden_unbind && !this.authorized) {
         this.hidden_unbind = true;
         this.hidden.forEach(el => {
-          el.style.opacity = "0";
+          el.style.opacity = '0';
         });
       }
+    });
+  }
+
+  ngOnDestroy() {
+    this.zone.runOutsideAngular(() => {
+      this.ngUnsubscribe.next();
+      this.ngUnsubscribe.complete();
     });
   }
 }

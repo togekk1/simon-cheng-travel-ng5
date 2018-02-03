@@ -22,30 +22,30 @@
 
       <div class="bg filter fill" [@hide_filter]="!hide_content ? 'void' : 'on'"></div>
 
-      <div class="scroll_hint" [ngStyle]="{'opacity': wasm.render_scroll_hint(scrolling_offset)}">
+      <div class="scroll_hint" [ngStyle]="{'opacity': scroll_hint_top}">
         <span>Scroll down</span>
       </div>
 
-      <div class="prologue_box" [ngStyle]="{'opacity': wasm.render_prologue_box(scrolling_offset)}">
+      <div class="prologue_box" [ngStyle]="{'opacity': prologue_box_top}">
 
         <div class="bleed"></div>
 
         <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'" [@hide_content]="!hide_content ? 'void' : 'on'">
           <p id="fadein0" class="fadein">
           </p>
-          <p id="fadein1" class="fadein" [ngStyle]="{'opacity': wasm.render_fadein(scrolling_offset, 1)}">
+          <p id="fadein1" class="fadein" [ngStyle]="{'opacity': fadein[0]}">
             I still don&#39;t know where this flight will take me.
           </p>
-          <p id="fadein2" class="fadein" [ngStyle]="{'opacity': wasm.render_fadein(scrolling_offset, 2)}">
+          <p id="fadein2" class="fadein" [ngStyle]="{'opacity': fadein[1]}">
             I still don&#39;t know where this road will lead me.
           </p>
-          <p id="fadein3" class="fadein" [ngStyle]="{'opacity': wasm.render_fadein(scrolling_offset, 3)}">
+          <p id="fadein3" class="fadein" [ngStyle]="{'opacity': fadein[2]}">
             But one thing I know for sure,
           </p>
-          <p id="fadein4" class="fadein" [ngStyle]="{'opacity': wasm.render_fadein(scrolling_offset, 4)}">
+          <p id="fadein4" class="fadein" [ngStyle]="{'opacity': fadein[3]}">
             This will change my life forever.
           </p>
-          <p id="fadein8" class="fadein" [ngStyle]="{'opacity': wasm.render_fadein(scrolling_offset, 8)}">
+          <p id="fadein8" class="fadein" [ngStyle]="{'opacity': fadein[4]}">
             The night before I left Taiwan, I asked myself over and over again if I have to do this. Yeah, first time being a backpacker.
             First time traveling alone. First time speaking English. And first time doing everything on my own without any
             help from travel agencies.
@@ -66,35 +66,35 @@
 
     </div>
 
-    <div class="text text_fadeout" (click)="hide_content = !hide_content && !editing" [@hide_content]="!hide_content ? 'void' : 'on'">
+    <div class="text text_fadeout" (click)="hide_content = !hide_content && !authorized" [@hide_content]="!hide_content ? 'void' : 'on'">
 
-      <div class="bleed" (mouseenter)="hide_content = !editing" (mouseleave)="hide_content = false">
+      <div class="bleed" (mouseenter)="hide_content = !authorized" (mouseleave)="hide_content = false">
       </div>
 
 
       <div class="content">
         <div>
           <div class="session" *ngFor="let item of data | async; trackBy:item?.id; let i = index">
-            <app-content-tools *ngIf="authorized" (save)="update_data($event, item, i)" (click)="authorized && $event.stopPropagation()">
+            <app-content-tools *ngIf="authorized" (save)="update_data($event, item, i)" [editorState]="editorState" (click)="authorized && $event.stopPropagation()">
               <i *ngIf="authorized" class="fa fa-trash pointer" (click)="$event.stopPropagation(); delete_data(item)"></i>
               <div data-editable [attr.data-name]="'content' + i" [innerHTML]="item.en"></div>
             </app-content-tools>
             <div *ngIf="!authorized" [innerHTML]="item.en"></div>
-            <!-- <div *ngIf="authorized && editor_show[i]" [froalaEditor] [(froalaModel)]="editorContent[i]" (click)="$event.stopPropagation()"></div> -->
           </div>
+          <!-- <h3 class="new_post" *ngIf="authorized" (click)="add_data()">Add new post here...</h3> -->
         </div>
 
-        <div *ngIf="authorized">
-          <!-- <i class="fa fa-plus pointer" data-editable data-name="main-content" (click)="$event.stopPropagation(); editor_show_new && add_data(editorContent_new); editor_show_new = !editor_show_new; editing = !editing"></i> -->
-          <app-content-tools (save)="add_data($event)" (click)="authorized && $event.stopPropagation()">
+        <div class="new_post" *ngIf="authorized">
+          <h3 *ngIf="authorized">Add new post here...</h3>
+          <app-content-tools *ngIf="!new_hide" ngInit (init)="editorState = true" (save)="update_data($event, 'new')" [editorState]="editorState"
+            (click)="authorized && $event.stopPropagation()">
             <div data-editable data-name="content_new" [innerHTML]="editorContent_new"></div>
-            <!-- <div *ngIf="authorized && editor_show_new" [froalaEditor] [(froalaModel)]="editorContent_new" (click)="$event.stopPropagation()"></div> -->
           </app-content-tools>
         </div>
 
       </div>
 
-      <div class="bleed" (mouseenter)="hide_content = true" (mouseleave)="hide_content = false"></div>
+      <div class="bleed" (mouseenter)="hide_content = !authorized" (mouseleave)="hide_content = false"></div>
 
     </div>
   </div>
