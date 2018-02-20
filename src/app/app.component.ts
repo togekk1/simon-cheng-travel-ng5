@@ -7,6 +7,7 @@ import {
   AnimationTransitionEvent,
   AfterViewChecked,
   NgZone,
+  OnInit,
   OnDestroy
 } from '@angular/core';
 import {
@@ -29,12 +30,14 @@ import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
 import { NgProgress } from 'ngx-progressbar';
 import 'rxjs/add/operator/takeUntil';
 import { Subject } from 'rxjs/Subject';
-import { log } from 'util';
+import { HttpClient } from '@angular/common/http';
+import { WASMService } from './string.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.less', '../assets/fonts/stylesheet.css'],
+  providers: [WASMService],
   animations: [
     trigger('bg_intro', [
       state('on', style({ opacity: 1, transform: 'translateX(-1%)' })),
@@ -97,7 +100,7 @@ import { log } from 'util';
     ])
   ]
 })
-export class AppComponent implements AfterViewChecked, OnDestroy {
+export class AppComponent implements AfterViewChecked, OnInit, OnDestroy {
   db: AngularFirestore;
   loading_hidden: boolean;
   title_show: string;
@@ -143,6 +146,7 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
   fadein: Float32Array;
   private ngUnsubscribe: Subject<any> = new Subject();
   new_hide: boolean;
+  mod: any;
 
   constructor(
     public afDb: AngularFirestore,
@@ -150,6 +154,8 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
     @Inject(DOCUMENT) private document: Document,
     public ngProgress: NgProgress,
     private zone: NgZone,
+    private http: HttpClient,
+    private wasm_str: WASMService
   ) {
 
     this.zone.runOutsideAngular(() => {
@@ -157,12 +163,12 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
 
       // WASM
       const importObject = { imports: { imported_func: arg => console.log(arg) } };
-      fetch('assets/webassembly.wasm').then(response =>
-        response.arrayBuffer()
-      ).then(bytes =>
-        WebAssembly.instantiate(bytes, importObject)
-        ).then(results => {
-          this.wasm = results.instance.exports;
+      this.http.get('assets/webassembly.wasm', { responseType: 'arraybuffer' })
+        .takeUntil(this.ngUnsubscribe)
+        .subscribe(bytes => {
+          WebAssembly.instantiate(bytes, importObject).then(results => {
+            this.wasm = results.instance.exports;
+          });
         });
 
       this.password_group = new FormGroup({
@@ -180,6 +186,8 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
           this.intro_bg_all = this.background.shift();
           this.background.reverse();
           this.intro_bg = 'url(' + this.intro_bg_all.org + ')';
+          console.log(this.background);
+          console.log(this.wasm_str.arrayIndexOf(this.background, 'https://c1.staticflickr.com/1/452/32133092055_a532d64cca_b.jpg'));
           this.loading();
         });
 
@@ -202,7 +210,11 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
           return { id, ...data };
         });
       });
+
     });
+  }
+
+  async ngOnInit() {
   }
 
   loading() {
