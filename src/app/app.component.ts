@@ -230,7 +230,7 @@ export class AppComponent implements AfterViewInit, AfterViewChecked, OnDestroy 
         xmlHTTP.onprogress = e => {
           completedPercentage[i] = e.loaded / e.total * 100;
           sum =
-            parseInt(completedPercentage.reduce((a, b) => a + b, 0)) /
+            parseInt(completedPercentage.reduce((a, b) => a + b, 0), 10) /
             this.background.length;
           this.zone.run(() => {
             this.loading_percentage = sum.toFixed(0);
@@ -252,7 +252,7 @@ export class AppComponent implements AfterViewInit, AfterViewChecked, OnDestroy 
     this.new_hide = true;
     this.zone.runOutsideAngular(() => {
       if (item !== 'new') {
-        const content_new = eval('content.content' + id);
+        const content_new = content['content' + id];
         if (!!content_new) {
           this.data_db
             .doc(item.id)
@@ -305,17 +305,18 @@ export class AppComponent implements AfterViewInit, AfterViewChecked, OnDestroy 
       this.bg_selected = this.bg_selected === -1 ? this.b.length : this.bg_selected;
 
       this.pin_trigger.forEach((pin, index) => {
-        // console.log(pin.getBoundingClientRect().top);
         this.pin_opacity[index] = this.wasm.render_trigger(pin.getBoundingClientRect().top);
       });
 
       this.scroll_hint_top = this.wasm.render_scroll_hint(this.scrolling_offset);
       this.prologue_box_top = this.wasm.render_prologue_box(this.scrolling_offset);
 
+
       for (let i = 0; i < 4; i++) {
         this.fadein[i] = this.wasm.render_fadein(this.scrolling_offset, i + 1);
       }
       this.fadein[4] = this.wasm.render_fadein(this.scrolling_offset, 8);
+
     });
   }
 
