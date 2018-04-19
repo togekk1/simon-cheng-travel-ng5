@@ -9,7 +9,7 @@
 
   <!-- Content -->
 
-  <div class="travel fill" *ngIf="content_page_show" (scroll)="scrollevent()">
+  <div class="travel fill" id="travel" *ngIf="content_page_show" (scroll)="scrollevent()">
     <div class="bg_container fill">
 
       <div class="bg_content">
@@ -60,9 +60,10 @@
       <!-- <div [ngStyle]="{'opacity': pin_opacity}">
         <div class="insert_here"></div>
       </div> -->
-      <div class="pin_point" *ngFor="let trigger of triggers; trackBy:index; let i = index">
+      <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index">
         <span *ngIf="pin_opacity[i] >= -0.5" [ngStyle]="{ 'opacity' : pin_opacity[i] }" [innerHTML]="trigger"></span>
       </div>
+
 
     </div>
 

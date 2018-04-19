@@ -1,3 +1,5 @@
+declare var require: any;
+
 import {
   Component,
   ViewChild,
@@ -6,8 +8,10 @@ import {
   Inject,
   AnimationTransitionEvent,
   AfterViewChecked,
+  AfterViewInit,
   NgZone,
-  OnDestroy
+  OnDestroy,
+  ChangeDetectorRef
 } from '@angular/core';
 import {
   trigger,
@@ -29,7 +33,6 @@ import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
 import { NgProgress } from 'ngx-progressbar';
 import 'rxjs/add/operator/takeUntil';
 import { Subject } from 'rxjs/Subject';
-import { log } from 'util';
 
 @Component({
   selector: 'app-root',
@@ -97,7 +100,7 @@ import { log } from 'util';
     ])
   ]
 })
-export class AppComponent implements AfterViewChecked, OnDestroy {
+export class AppComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
   db: AngularFirestore;
   loading_hidden: boolean;
   title_show: string;
@@ -116,14 +119,15 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
   pin_point: any;
   pin_trigger: any;
   pin_trigger_new: any;
-  triggers: Array<any> = [];
+  triggers: Array<any> = new Array();
   switch_top: number;
-  pin_opacity: Float32Array;
+  pin_opacity: Float64Array = new Float64Array(5);
   b: Array<any> = [];
   bg_selected = 0;
   switch: any;
   hidden: any;
   switch_unbind: boolean;
+  pin_unbind: boolean;
   trigger_unbind: boolean;
   hidden_unbind: boolean;
   editorContent: Array<any> = [];
@@ -140,7 +144,7 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
   wasm: any;
   scroll_hint_top: number;
   prologue_box_top: number;
-  fadein: Float32Array;
+  fadein: Float64Array = new Float64Array(5);
   private ngUnsubscribe: Subject<any> = new Subject();
   new_hide: boolean;
 
@@ -150,10 +154,10 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
     @Inject(DOCUMENT) private document: Document,
     public ngProgress: NgProgress,
     private zone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {
 
     this.zone.runOutsideAngular(() => {
-      this.fadein = new Float32Array(5);
 
       // WASM
       const importObject = { imports: { imported_func: arg => console.log(arg) } };
@@ -161,9 +165,9 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
         response.arrayBuffer()
       ).then(bytes =>
         WebAssembly.instantiate(bytes, importObject)
-        ).then(results => {
-          this.wasm = results.instance.exports;
-        });
+      ).then(results => {
+        this.wasm = results.instance.exports;
+      });
 
       this.password_group = new FormGroup({
         password: new FormControl()
@@ -203,6 +207,10 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
         });
       });
     });
+  }
+
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
   }
 
   loading() {
@@ -280,6 +288,10 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
     });
   }
 
+  pin_track(index) {
+    return index;
+  }
+
   @HostListener('scroll', [])
   scrollevent() {
     this.zone.runOutsideAngular(() => {
@@ -290,21 +302,20 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
         this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
       }
       this.bg_selected = this.b.findIndex(i => i > 0);
-      this.bg_selected === -1 && (this.bg_selected = this.b.length);
+      this.bg_selected = this.bg_selected === -1 ? this.b.length : this.bg_selected;
 
       this.pin_trigger.forEach((pin, index) => {
+        // console.log(pin.getBoundingClientRect().top);
         this.pin_opacity[index] = this.wasm.render_trigger(pin.getBoundingClientRect().top);
       });
 
       this.scroll_hint_top = this.wasm.render_scroll_hint(this.scrolling_offset);
       this.prologue_box_top = this.wasm.render_prologue_box(this.scrolling_offset);
 
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 4; i++) {
         this.fadein[i] = this.wasm.render_fadein(this.scrolling_offset, i + 1);
       }
-
       this.fadein[4] = this.wasm.render_fadein(this.scrolling_offset, 8);
-
     });
   }
 
@@ -320,8 +331,9 @@ export class AppComponent implements AfterViewChecked, OnDestroy {
         this.content_top = this.switch[0].getBoundingClientRect().top;
       }
 
-      if (!!this.pin_trigger.length) {
-        this.pin_opacity = new Float32Array(this.pin_trigger.length);
+      if (!!this.pin_trigger.length && !this.pin_unbind) {
+        this.pin_unbind = true;
+        this.pin_opacity = new Float64Array(this.pin_trigger.length);
       }
 
       if (
