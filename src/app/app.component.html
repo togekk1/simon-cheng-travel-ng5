@@ -9,7 +9,7 @@
 
   <!-- Intro -->
   <div class="intro fill" *ngIf="appService.intro_show">
-    <div class="intro_bg fill" [style.background-image]="databaseService.intro_bg" [@bg_intro]="leave ? 'void' : 'on'" (@bg_intro.done)="$event.toState === 'on' && loading_hidden = true; leave && intro_show = false"></div>
+    <div class="intro_bg fill" [style.background-image]="databaseService.intro_bg" [@bg_intro]="leave ? 'void' : 'on'" (@bg_intro.done)="$event.toState === 'on' && loading_hidden = true; leave && appService.intro_show = false"></div>
     <div class="filter fill"></div>
     <div class="password">
       <form [formGroup]="password_group" (ngSubmit)="pass_show = false; password_group.value.password === password && authorized = true">
