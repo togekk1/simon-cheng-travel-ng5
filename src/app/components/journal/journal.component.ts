@@ -93,12 +93,6 @@ export class JournalComponent implements AfterViewChecked {
       this.scrolling_offset =
         this.content_top - this.switch[0].getBoundingClientRect().top;
 
-      for (let i = 0; i < this.switch.length; i++) {
-        this.b[i] = this.switch[i].getBoundingClientRect().top / 300;
-      }
-      this.bg_selected = this.b.findIndex(i => i > 0);
-      this.bg_selected = this.bg_selected === -1 ? this.b.length : this.bg_selected;
-
       this.pin_trigger.forEach((pin, index) => {
         this.pin_opacity[index] = this.appService.wasm.render_trigger(pin.getBoundingClientRect().top);
       });
@@ -116,14 +110,18 @@ export class JournalComponent implements AfterViewChecked {
   }
 
   get_bg_opacity(i: number): number {
-    if (!!this.switch) {
-      const this_switch = this.switch[this.bgLoadingService.background.length - i - 1];
-      if (!!this_switch) {
-        const opacity = this.appService.wasm.render_bg(this_switch.getBoundingClientRect().top);
-        return opacity;
+    return this.zone.runOutsideAngular((): number => {
+      if (!!this.switch) {
+        const this_switch = this.switch[this.bgLoadingService.background.length - i - 1];
+        if (!!this_switch) {
+          const opacity: number = this.appService.wasm.render_bg(this_switch.getBoundingClientRect().top);
+          this.b[i] = opacity;
+          this.bg_selected = this.b.findIndex(j => j > 0);
+          this.bg_selected = this.bg_selected === -1 ? this.b.length : this.bg_selected;
+          return opacity;
+        }
       }
-    }
-
+    });
   }
 
   ngAfterViewChecked() {
