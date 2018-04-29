@@ -73,7 +73,7 @@ export class JournalComponent implements AfterViewChecked {
     private sanitizer: DomSanitizer,
     private zone: NgZone,
     public databaseService: DatabaseService,
-    private appService: AppService,
+    public appService: AppService,
     public bgLoadingService: BgLoadingService
   ) {
     this.document.documentElement.scrollTop = 0;
@@ -101,10 +101,10 @@ export class JournalComponent implements AfterViewChecked {
       this.prologue_box_top = this.appService.wasm.render_prologue_box(this.scrolling_offset);
 
 
-      for (let i = 0; i < 4; i++) {
-        this.fadein[i] = this.appService.wasm.render_fadein(this.scrolling_offset, i + 1);
-      }
-      this.fadein[4] = this.appService.wasm.render_fadein(this.scrolling_offset, 8);
+      // for (let i = 0; i < 4; i++) {
+      //   this.fadein[i] = this.appService.wasm.render_fadein(this.scrolling_offset, i + 1);
+      // }
+      // this.fadein[4] = this.appService.wasm.render_fadein(this.scrolling_offset, 8);
 
     });
   }

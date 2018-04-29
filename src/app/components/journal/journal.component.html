@@ -21,19 +21,19 @@
       <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'" [@hide_content]="!hide_content ? 'void' : 'on'">
         <p id="fadein0" class="fadein">
         </p>
-        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': fadein[0]}">
+        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': this.appService.wasm.render_fadein(this.scrolling_offset, 1)}">
           I still don&#39;t know where this flight will take me.
         </p>
-        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': fadein[1]}">
+        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': this.appService.wasm.render_fadein(this.scrolling_offset, 2)}">
           I still don&#39;t know where this road will lead me.
         </p>
-        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': fadein[2]}">
+        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': this.appService.wasm.render_fadein(this.scrolling_offset, 3)}">
           But one thing I know for sure,
         </p>
-        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': fadein[3]}">
+        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': this.appService.wasm.render_fadein(this.scrolling_offset, 4)}">
           This will change my life forever.
         </p>
-        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': fadein[4]}">
+        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': this.appService.wasm.render_fadein(this.scrolling_offset, 8)}">
           The night before I left Taiwan, I asked myself over and over again if I have to do this. Yeah, first time being a backpacker.
           First time traveling alone. First time speaking English. And first time doing everything on my own without any
           help from travel agencies.
