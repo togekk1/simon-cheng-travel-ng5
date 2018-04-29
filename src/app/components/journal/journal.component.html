@@ -3,8 +3,7 @@
 
     <div class="bg_content">
       <div class="fill" *ngFor="let bg of bgLoadingService.background; trackBy:index; let i = index">
-        <div class="bg img" *ngIf="bgLoadingService.background.length - i - 1 >= bg_selected - 1 && bgLoadingService.background.length - i - 1 <= bg_selected + 1"
-          [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': b[bgLoadingService.background.length - i - 1]}">
+        <div class="bg img" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': get_bg_opacity(i)}">
         </div>
       </div>
     </div>

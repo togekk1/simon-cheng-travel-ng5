@@ -115,6 +115,17 @@ export class JournalComponent implements AfterViewChecked {
     });
   }
 
+  get_bg_opacity(i: number): number {
+    if (!!this.switch) {
+      const this_switch = this.switch[this.bgLoadingService.background.length - i - 1];
+      if (!!this_switch) {
+        const opacity = this.appService.wasm.render_bg(this_switch.getBoundingClientRect().top);
+        return opacity;
+      }
+    }
+
+  }
+
   ngAfterViewChecked() {
     this.zone.runOutsideAngular(() => {
       this.pin_point = document.querySelectorAll('.pin_point');

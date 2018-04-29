@@ -8,7 +8,7 @@ export class AppService {
   constructor() {
     // WASM
     const importObject = { imports: { imported_func: arg => console.log(arg) } };
-    fetch('assets/webassembly.wasm').then(response =>
+    fetch('assets/optimized.wasm').then(response =>
       response.arrayBuffer()
     ).then(bytes =>
       WebAssembly.instantiate(bytes, importObject)
