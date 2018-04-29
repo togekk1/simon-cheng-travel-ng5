@@ -39,14 +39,13 @@ import { DatabaseService } from '../../services/database.service';
 export class JournalComponent implements AfterViewChecked {
   content_top: number;
   index: number;
-  scrolling_offset = 0;
   pin_point: any;
   pin_trigger: any;
   pin_trigger_new: any;
   triggers: Array<any> = new Array();
   switch_top: number;
   pin_opacity: Float64Array = new Float64Array(5);
-  b: Array<any> = [];
+  opacity_arr: Array<any> = [];
   bg_selected = 0;
   switch: any;
   hidden: any;
@@ -61,13 +60,11 @@ export class JournalComponent implements AfterViewChecked {
   hide_content: boolean;
   text_hide: boolean;
   item: object;
-  bg_show: Array<boolean> = new Array();
 
   post: Object;
   editorState = false;
   scroll_hint_top: number;
   prologue_box_top: number;
-  fadein: Float64Array = new Float64Array(5);
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -91,23 +88,20 @@ export class JournalComponent implements AfterViewChecked {
   @HostListener('scroll', [])
   scrollevent() {
     this.zone.runOutsideAngular(() => {
-      this.scrolling_offset =
-        this.content_top - this.switch[0].getBoundingClientRect().top;
-
       this.pin_trigger.forEach((pin, index) => {
         this.pin_opacity[index] = this.appService.wasm.render_trigger(pin.getBoundingClientRect().top);
       });
 
-      this.scroll_hint_top = this.appService.wasm.render_scroll_hint(this.scrolling_offset);
-      this.prologue_box_top = this.appService.wasm.render_prologue_box(this.scrolling_offset);
+      this.scroll_hint_top = this.appService.wasm.render_scroll_hint(this.content_top, this.switch[0].getBoundingClientRect().top);
+      this.prologue_box_top = this.appService.wasm.render_prologue_box(this.content_top, this.switch[0].getBoundingClientRect().top);
 
 
       for (let i = 0; i < this.switch.length; i++) {
-        const opacity: number = this.appService.wasm.render_bg(this.switch[i].getBoundingClientRect().top);
-        this.b[i] = opacity;
-        this.bg_selected = this.b.findIndex(j => j > 0);
-        this.bg_selected = this.bg_selected === -1 ? this.b.length : this.bg_selected;
+        this.opacity_arr[i] = this.appService.wasm.render_bg(this.switch[i].getBoundingClientRect().top);
       }
+
+      this.bg_selected = this.opacity_arr.findIndex(j => j > 0);
+      this.bg_selected = this.bg_selected === -1 ? this.opacity_arr.length : this.bg_selected;
     });
   }
 
