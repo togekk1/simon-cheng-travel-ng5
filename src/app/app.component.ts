@@ -65,11 +65,6 @@ import { DatabaseService } from './services/database.service';
           style({ opacity: 0, transform: 'translateX(-5px)' })
         )
       )
-    ]),
-    trigger('text', [
-      state('on', style({ opacity: 1 })),
-      transition(':enter', animate('1s linear')),
-      transition(':leave', animate('2s linear', style({ opacity: 0 })))
     ])
   ]
 })

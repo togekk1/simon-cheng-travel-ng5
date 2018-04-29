@@ -48,9 +48,11 @@
     <!-- <div [ngStyle]="{'opacity': pin_opacity}">
       <div class="insert_here"></div>
     </div> -->
+
     <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index">
-      <span *ngIf="pin_opacity[i] >= -0.5" [ngStyle]="{ 'opacity' : pin_opacity[i] }" [innerHTML]="trigger"></span>
+      <span *ngIf="!!pin_opacity && pin_opacity[i] >= -0.5" [ngStyle]="{ 'opacity' : pin_opacity[i] }" [innerHTML]="trigger"></span>
     </div>
+
 
 
   </div>
@@ -68,7 +70,9 @@
             <i *ngIf="authorized" class="fa fa-trash pointer" (click)="$event.stopPropagation(); delete_data(item)"></i>
             <div data-editable [attr.data-name]="'content' + i" [innerHTML]="item.en"></div>
           </app-content-tools>
-          <div *ngIf="!authorized" [innerHTML]="item.en"></div>
+          <div *ngIf="!authorized" [attr.id]="'content' + i">
+            <div *ngIf="!item.unbind && render_content(i, item)"></div>
+          </div>
         </div>
         <!-- <h3 class="new_post" *ngIf="authorized" (click)="add_data()">Add new post here...</h3> -->
       </div>

@@ -33,18 +33,23 @@ import { DatabaseService } from '../../services/database.service';
       state('on', style({ opacity: 0 })),
       transition(':enter', animate('400ms linear')),
       transition(':leave', animate('400ms linear', style({ opacity: 1 })))
+    ]),
+    trigger('text', [
+      state('on', style({ opacity: 1 })),
+      transition(':enter', animate('1s linear')),
+      transition(':leave', animate('2s linear', style({ opacity: 0 })))
     ])
   ]
 })
-export class JournalComponent implements AfterViewChecked {
+export class JournalComponent {
   content_top: number;
   index: number;
   pin_point: any;
   pin_trigger: any;
   pin_trigger_new: any;
-  triggers: Array<any> = new Array();
+  triggers: Array<string> = new Array();
   switch_top: number;
-  pin_opacity: Float64Array = new Float64Array(5);
+  pin_opacity: Float64Array;
   opacity_arr: Array<any> = [];
   bg_selected = 0;
   switch: any;
@@ -88,13 +93,14 @@ export class JournalComponent implements AfterViewChecked {
   @HostListener('scroll', [])
   scrollevent() {
     this.zone.runOutsideAngular(() => {
-      this.pin_trigger.forEach((pin, index) => {
-        this.pin_opacity[index] = this.appService.wasm.render_trigger(pin.getBoundingClientRect().top);
-      });
+      if (!!this.pin_opacity) {
+        this.pin_trigger.forEach((pin, index) => {
+          this.pin_opacity[index] = this.appService.wasm.render_trigger(pin.getBoundingClientRect().top);
+        });
+      }
 
       this.scroll_hint_top = this.appService.wasm.render_scroll_hint(this.content_top, this.switch[0].getBoundingClientRect().top);
       this.prologue_box_top = this.appService.wasm.render_prologue_box(this.content_top, this.switch[0].getBoundingClientRect().top);
-
 
       for (let i = 0; i < this.switch.length; i++) {
         this.opacity_arr[i] = this.appService.wasm.render_bg(this.switch[i].getBoundingClientRect().top);
@@ -105,48 +111,106 @@ export class JournalComponent implements AfterViewChecked {
     });
   }
 
-  ngAfterViewChecked() {
-    this.zone.runOutsideAngular(() => {
-      this.pin_point = document.querySelectorAll('.pin_point');
-      this.pin_trigger = document.querySelectorAll('.pin_trigger');
-      this.switch = document.querySelectorAll('.switch');
-      this.hidden = document.querySelectorAll('.hidden');
+  // ngAfterViewChecked() {
+  //   this.zone.runOutsideAngular(() => {
+  //     this.pin_point = document.querySelectorAll('.pin_point');
+  //     this.pin_trigger = document.querySelectorAll('.pin_trigger');
+  //     this.switch = document.querySelectorAll('.switch');
+  //     this.hidden = document.querySelectorAll('.hidden');
 
-      if (!!this.switch.length && !this.switch_unbind) {
-        this.switch_unbind = true;
-        this.content_top = this.switch[0].getBoundingClientRect().top;
-      }
+  //     if (!!this.switch.length && !this.switch_unbind) {
+  //       this.switch_unbind = true;
+  //       this.content_top = this.switch[0].getBoundingClientRect().top;
+  //     }
 
-      if (!!this.pin_trigger.length && !this.pin_unbind) {
-        this.pin_unbind = true;
-        this.pin_opacity = new Float64Array(this.pin_trigger.length);
+  //     if (!!this.pin_trigger.length && !this.pin_unbind) {
+  //       this.pin_unbind = true;
+  //       this.pin_opacity = new Float64Array(this.pin_trigger.length);
+  //     }
+
+
+
+  //     if (!!this.hidden.length && !this.hidden_unbind && !this.authorized) {
+  //       this.hidden_unbind = true;
+  //       this.hidden.forEach(el => {
+  //         el.style.opacity = '0';
+  //       });
+  //     }
+  //   });
+  // }
+
+  render_content(i: number, item: object): void {
+    const content_root = document.getElementById('content' + i);
+    if (!!content_root) {
+      (<any>item).unbind = true;
+      const content = document.createElement('div');
+      content.innerHTML = (<any>item).en;
+      const frag = document.createDocumentFragment();
+      frag.appendChild(content);
+      const pin_point = frag.querySelectorAll('.pin_point');
+      const pin_trigger = frag.querySelectorAll('.pin_trigger');
+      const switch_frag = frag.querySelectorAll('.switch');
+      const hidden = frag.querySelectorAll('.hidden');
+
+      if (!!hidden.length && !this.hidden_unbind) {
+        this.hidden_unbind = true;
+        Array.from(hidden).forEach(el => {
+          (<any>el).style.opacity = '0';
+        });
       }
 
       if (
-        !!this.pin_point.length &&
-        !!this.pin_trigger.length &&
-        !this.trigger_unbind &&
-        !this.authorized
+        !!pin_point.length &&
+        !!pin_trigger.length &&
+        !this.trigger_unbind
       ) {
-        this.trigger_unbind = true;
-
-        this.triggers = Array.prototype.map.call(this.pin_point, el => {
-          const a = el.innerHTML;
+        // const aa = Array.prototype.map.call(this.pin_point, el => {
+        //   const a = el.innerHTML;
+        //   el.remove();
+        //   return a;
+        // });
+        Array.from(pin_point).forEach(el => {
+          this.triggers.push(el.innerHTML);
           el.remove();
-          return a;
         });
 
-        this.pin_trigger.forEach(el => {
-          el.style.height = '1100px';
+        Array.from(pin_trigger).forEach(el => {
+          (<any>el).style.height = '1100px';
         });
       }
 
-      if (!!this.hidden.length && !this.hidden_unbind && !this.authorized) {
-        this.hidden_unbind = true;
-        this.hidden.forEach(el => {
-          el.style.opacity = '0';
-        });
+      content_root.appendChild(frag);
+
+      this.pin_trigger = document.querySelectorAll('.pin_trigger');
+      this.switch = document.querySelectorAll('.switch');
+
+      this.pin_opacity = new Float64Array(this.pin_trigger.length);
+
+      if (!!this.switch.length && !this.switch_unbind) {
+        this.switch_unbind = true;
+        this.content_top = switch_frag[0].getBoundingClientRect().top;
       }
-    });
+    }
   }
+
+  // render_trigger(): boolean {
+  //   return this.zone.runOutsideAngular((): boolean => {
+  //     if (
+  //       !!this.pin_point.length &&
+  //       !!this.pin_trigger.length &&
+  //       !this.trigger_unbind &&
+  //       !this.authorized
+  //     ) {
+  //       this.triggers = Array.prototype.map.call(this.pin_point, el => {
+  //         const a = el.innerHTML;
+  //         el.remove();
+  //         return a;
+  //       });
+
+  //       this.pin_trigger.forEach(el => {
+  //         el.style.height = '1100px';
+  //       });
+  //     }
+  //   });
+  // }
 }
