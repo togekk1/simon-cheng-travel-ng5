@@ -61,6 +61,7 @@ export class JournalComponent implements AfterViewChecked {
   hide_content: boolean;
   text_hide: boolean;
   item: object;
+  bg_show: Array<boolean> = new Array();
 
   post: Object;
   editorState = false;
@@ -101,25 +102,11 @@ export class JournalComponent implements AfterViewChecked {
       this.prologue_box_top = this.appService.wasm.render_prologue_box(this.scrolling_offset);
 
 
-      // for (let i = 0; i < 4; i++) {
-      //   this.fadein[i] = this.appService.wasm.render_fadein(this.scrolling_offset, i + 1);
-      // }
-      // this.fadein[4] = this.appService.wasm.render_fadein(this.scrolling_offset, 8);
-
-    });
-  }
-
-  get_bg_opacity(i: number): number {
-    return this.zone.runOutsideAngular((): number => {
-      if (!!this.switch) {
-        const this_switch = this.switch[this.bgLoadingService.background.length - i - 1];
-        if (!!this_switch) {
-          const opacity: number = this.appService.wasm.render_bg(this_switch.getBoundingClientRect().top);
-          this.b[i] = opacity;
-          this.bg_selected = this.b.findIndex(j => j > 0);
-          this.bg_selected = this.bg_selected === -1 ? this.b.length : this.bg_selected;
-          return opacity;
-        }
+      for (let i = 0; i < this.switch.length; i++) {
+        const opacity: number = this.appService.wasm.render_bg(this.switch[i].getBoundingClientRect().top);
+        this.b[i] = opacity;
+        this.bg_selected = this.b.findIndex(j => j > 0);
+        this.bg_selected = this.bg_selected === -1 ? this.b.length : this.bg_selected;
       }
     });
   }

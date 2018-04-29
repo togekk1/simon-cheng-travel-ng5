@@ -3,7 +3,7 @@
 
     <div class="bg_content">
       <div class="fill" *ngFor="let bg of bgLoadingService.background; trackBy:index; let i = index">
-        <div class="bg img" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': get_bg_opacity(i)}">
+        <div class="bg img" *ngIf="appService.wasm.bg_show(i, bgLoadingService.background.length, bg_selected)" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': b[this.bgLoadingService.background.length - i - 1]}">
         </div>
       </div>
     </div>
