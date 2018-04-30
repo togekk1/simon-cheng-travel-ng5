@@ -3,7 +3,7 @@
 
     <div class="bg_content">
       <div class="fill" *ngFor="let bg of bgLoadingService.background; trackBy:index; let i = index">
-        <div class="bg img" *ngIf="appService.wasm.bg_show(i, bgLoadingService.background.length, bg_selected)" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': opacity_arr[bgLoadingService.background.length - i - 1]}">
+        <div class="bg img" *ngIf="wasmService.asc.bg_show(i, bgLoadingService.background.length, bg_selected)" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': opacity_arr[bgLoadingService.background.length - i - 1]}">
         </div>
       </div>
     </div>
@@ -21,19 +21,19 @@
       <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'" [@hide_content]="!hide_content ? 'void' : 'on'" *ngIf="!!switch">
         <p id="fadein0" class="fadein">
         </p>
-        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': !!switch.length && appService.wasm.render_fadein(content_top, switch[0].getBoundingClientRect().top, 1)}">
+        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 1)}">
           I still don&#39;t know where this flight will take me.
         </p>
-        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': !!switch.length && appService.wasm.render_fadein(content_top, switch[0].getBoundingClientRect().top, 2)}">
+        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 2)}">
           I still don&#39;t know where this road will lead me.
         </p>
-        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': !!switch.length && appService.wasm.render_fadein(content_top, switch[0].getBoundingClientRect().top, 3)}">
+        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 3)}">
           But one thing I know for sure,
         </p>
-        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': !!switch.length && appService.wasm.render_fadein(content_top, switch[0].getBoundingClientRect().top, 4)}">
+        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 4)}">
           This will change my life forever.
         </p>
-        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': !!switch.length && appService.wasm.render_fadein(content_top, switch[0].getBoundingClientRect().top, 8)}">
+        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 8)}">
           The night before I left Taiwan, I asked myself over and over again if I have to do this. Yeah, first time being a backpacker.
           First time traveling alone. First time speaking English. And first time doing everything on my own without any
           help from travel agencies.

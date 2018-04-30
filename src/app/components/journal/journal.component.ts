@@ -15,7 +15,7 @@ import {
   state
 } from '@angular/animations';
 import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
-import { AppService } from '../../app.service';
+import { WasmService } from '../../services/wasm.service';
 import { BgLoadingService } from '../bg-loading/bg-loading.service';
 import { DatabaseService } from '../../services/database.service';
 
@@ -76,7 +76,7 @@ export class JournalComponent {
     private sanitizer: DomSanitizer,
     private zone: NgZone,
     public databaseService: DatabaseService,
-    public appService: AppService,
+    public wasmService: WasmService,
     public bgLoadingService: BgLoadingService
   ) {
     this.document.documentElement.scrollTop = 0;
@@ -95,15 +95,15 @@ export class JournalComponent {
     this.zone.runOutsideAngular(() => {
       if (!!this.pin_opacity) {
         this.pin_trigger.forEach((pin, index) => {
-          this.pin_opacity[index] = this.appService.wasm.render_trigger(pin.getBoundingClientRect().top);
+          this.pin_opacity[index] = this.wasmService.asc.render_trigger(pin.getBoundingClientRect().top);
         });
       }
 
-      this.scroll_hint_top = this.appService.wasm.render_scroll_hint(this.content_top, this.switch[0].getBoundingClientRect().top);
-      this.prologue_box_top = this.appService.wasm.render_prologue_box(this.content_top, this.switch[0].getBoundingClientRect().top);
+      this.scroll_hint_top = this.wasmService.asc.render_scroll_hint(this.content_top, this.switch[0].getBoundingClientRect().top);
+      this.prologue_box_top = this.wasmService.asc.render_prologue_box(this.content_top, this.switch[0].getBoundingClientRect().top);
 
       for (let i = 0; i < this.switch.length; i++) {
-        this.opacity_arr[i] = this.appService.wasm.render_bg(this.switch[i].getBoundingClientRect().top);
+        this.opacity_arr[i] = this.wasmService.asc.render_bg(this.switch[i].getBoundingClientRect().top);
       }
 
       this.bg_selected = this.opacity_arr.findIndex(j => j > 0);

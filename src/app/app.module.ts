@@ -17,6 +17,7 @@ import { AutofocusDirective } from './app.directive';
 import { NgInitDirective } from './nginit.directive';
 import { DatabaseService } from './services/database.service';
 import { AppService } from './app.service';
+import { WasmService } from './services/wasm.service';
 import { BgLoadingService } from './components/bg-loading/bg-loading.service';
 import { ContentToolsComponent } from './contenttools.component';
 import { JournalComponent } from './components/journal/journal.component';
@@ -58,6 +59,7 @@ export const firebaseConfig = {
   ],
   providers: [
     AppService,
+    WasmService,
     DatabaseService,
     BgLoadingService
   ],

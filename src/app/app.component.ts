@@ -14,6 +14,7 @@ import {
 } from '@angular/animations';
 import { FormGroup, FormControl } from '@angular/forms';
 import { AppService } from './app.service';
+import { WasmService } from './services/wasm.service';
 import { BgLoadingService } from './components/bg-loading/bg-loading.service';
 import { DatabaseService } from './services/database.service';
 
@@ -79,6 +80,7 @@ export class AppComponent implements AfterViewInit {
   constructor(
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
+    public wasmService: WasmService,
     public appService: AppService,
     private bgLoadingService: BgLoadingService,
     public databaseService: DatabaseService
