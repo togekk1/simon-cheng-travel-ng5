@@ -111,34 +111,6 @@ export class JournalComponent {
     });
   }
 
-  // ngAfterViewChecked() {
-  //   this.zone.runOutsideAngular(() => {
-  //     this.pin_point = document.querySelectorAll('.pin_point');
-  //     this.pin_trigger = document.querySelectorAll('.pin_trigger');
-  //     this.switch = document.querySelectorAll('.switch');
-  //     this.hidden = document.querySelectorAll('.hidden');
-
-  //     if (!!this.switch.length && !this.switch_unbind) {
-  //       this.switch_unbind = true;
-  //       this.content_top = this.switch[0].getBoundingClientRect().top;
-  //     }
-
-  //     if (!!this.pin_trigger.length && !this.pin_unbind) {
-  //       this.pin_unbind = true;
-  //       this.pin_opacity = new Float64Array(this.pin_trigger.length);
-  //     }
-
-
-
-  //     if (!!this.hidden.length && !this.hidden_unbind && !this.authorized) {
-  //       this.hidden_unbind = true;
-  //       this.hidden.forEach(el => {
-  //         el.style.opacity = '0';
-  //       });
-  //     }
-  //   });
-  // }
-
   render_content(i: number, item: object): void {
     const content_root = document.getElementById('content' + i);
     if (!!content_root) {
@@ -164,11 +136,6 @@ export class JournalComponent {
         !!pin_trigger.length &&
         !this.trigger_unbind
       ) {
-        // const aa = Array.prototype.map.call(this.pin_point, el => {
-        //   const a = el.innerHTML;
-        //   el.remove();
-        //   return a;
-        // });
         Array.from(pin_point).forEach(el => {
           this.triggers.push(el.innerHTML);
           el.remove();
@@ -192,25 +159,4 @@ export class JournalComponent {
       }
     }
   }
-
-  // render_trigger(): boolean {
-  //   return this.zone.runOutsideAngular((): boolean => {
-  //     if (
-  //       !!this.pin_point.length &&
-  //       !!this.pin_trigger.length &&
-  //       !this.trigger_unbind &&
-  //       !this.authorized
-  //     ) {
-  //       this.triggers = Array.prototype.map.call(this.pin_point, el => {
-  //         const a = el.innerHTML;
-  //         el.remove();
-  //         return a;
-  //       });
-
-  //       this.pin_trigger.forEach(el => {
-  //         el.style.height = '1100px';
-  //       });
-  //     }
-  //   });
-  // }
 }

@@ -9,7 +9,7 @@ export class WasmService {
   ) {
     this.zone.runOutsideAngular(async (): Promise<any> => {
       const wasmCacheVersion = 1;
-      const instance = await this.instantiateCachedURL(wasmCacheVersion, 'assets/optimized.wasm')
+      const instance = await this.instantiateCachedURL(wasmCacheVersion, 'assets/optimized.wasm');
       this.asc = instance.exports;
     });
   }
@@ -43,7 +43,7 @@ export class WasmService {
           this.storeInDatabase(db, results.module, storeName, url);
           return results.instance;
         });
-      })
+      });
     },
       errMsg => {
         // If opening the database failed (due to permissions or quota), fall back
@@ -51,7 +51,7 @@ export class WasmService {
         // results.
         console.log(errMsg);
         return WebAssembly.instantiateStreaming(fetch(url)).then(results => {
-          return results.instance
+          return results.instance;
         });
       });
   }
@@ -60,17 +60,17 @@ export class WasmService {
   // database and clearing out the cache when the version changes.
   openDatabase(dbName, dbVersion, storeName) {
     return new Promise((resolve, reject) => {
-      var request = indexedDB.open(dbName, dbVersion);
+      const request = indexedDB.open(dbName, dbVersion);
       request.onerror = reject.bind(null, 'Error opening wasm cache database');
-      request.onsuccess = () => { resolve(request.result) };
+      request.onsuccess = () => { resolve(request.result); };
       request.onupgradeneeded = event => {
-        var db = request.result;
+        const db = request.result;
         if (db.objectStoreNames.contains(storeName)) {
           console.log(`Clearing out version ${event.oldVersion} wasm cache`);
           db.deleteObjectStore(storeName);
         }
         console.log(`Creating version ${event.newVersion} wasm cache`);
-        db.createObjectStore(storeName)
+        db.createObjectStore(storeName);
       };
     });
   }
@@ -79,25 +79,25 @@ export class WasmService {
   // given IDBDatabase.
   lookupInDatabase(db, storeName, url) {
     return new Promise((resolve, reject) => {
-      var store = db.transaction([storeName]).objectStore(storeName);
-      var request = store.get(url);
+      const store = db.transaction([storeName]).objectStore(storeName);
+      const request = store.get(url);
       request.onerror = reject.bind(null, `Error getting wasm module ${url}`);
       request.onsuccess = event => {
-        if (request.result)
+        if (request.result) {
           resolve(request.result);
-        else
+        } else {
           reject(`Module ${url} was not found in wasm cache`);
-      }
+        }
+      };
     });
   }
 
   // This helper function fires off an async operation to store the given wasm
   // Module in the given IDBDatabase.
   storeInDatabase(db, module, storeName, url) {
-    var store = db.transaction([storeName], 'readwrite').objectStore(storeName);
-    var request = store.put(module, url);
-    request.onerror = err => { console.log(`Failed to store in wasm cache: ${err}`) };
-    request.onsuccess = err => { console.log(`Successfully stored ${url} in wasm cache`) };
+    const store = db.transaction([storeName], 'readwrite').objectStore(storeName);
+    const request = store.put(module, url);
+    request.onerror = err => { console.log(`Failed to store in wasm cache: ${err}`); };
+    request.onsuccess = err => { console.log(`Successfully stored ${url} in wasm cache`); };
   }
-
 }

@@ -42,26 +42,17 @@
 
       <div class="bleed"></div>
 
-
     </div>
-
-    <!-- <div [ngStyle]="{'opacity': pin_opacity}">
-      <div class="insert_here"></div>
-    </div> -->
 
     <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index">
       <span *ngIf="!!pin_opacity && pin_opacity[i] >= -0.5" [ngStyle]="{ 'opacity' : pin_opacity[i] }" [innerHTML]="trigger"></span>
     </div>
-
-
-
   </div>
 
   <div class="text text_fadeout" (click)="hide_content = !hide_content && !authorized" [@hide_content]="!hide_content ? 'void' : 'on'">
 
     <div class="bleed" (mouseenter)="hide_content = !authorized" (mouseleave)="hide_content = false">
     </div>
-
 
     <div class="content">
       <div>
@@ -74,7 +65,6 @@
             <div *ngIf="!item.unbind && render_content(i, item)"></div>
           </div>
         </div>
-        <!-- <h3 class="new_post" *ngIf="authorized" (click)="add_data()">Add new post here...</h3> -->
       </div>
 
       <div class="new_post" *ngIf="authorized">
@@ -84,7 +74,6 @@
           <div data-editable data-name="content_new" [innerHTML]="editorContent_new"></div>
         </app-content-tools>
       </div>
-
     </div>
 
     <div class="bleed" (mouseenter)="hide_content = !authorized" (mouseleave)="hide_content = false"></div>

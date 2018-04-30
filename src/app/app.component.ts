@@ -69,6 +69,7 @@ import { DatabaseService } from './services/database.service';
     ])
   ]
 })
+
 export class AppComponent implements AfterViewInit {
   loading_hidden: boolean;
   title_show: string;
