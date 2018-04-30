@@ -3,6 +3,7 @@ import { BgLoadingService } from '../bg-loading/bg-loading.service';
 import { DatabaseService } from '../../services/database.service';
 import { NgProgress } from 'ngx-progressbar';
 import { AppService } from '../../app.service';
+import { WasmService } from '../../services/wasm.service';
 import 'rxjs/add/operator/takeUntil';
 import { Subject } from 'rxjs/Subject';
 
@@ -20,6 +21,7 @@ export class BgLoadingComponent {
     private bgLoadingService: BgLoadingService,
     private databaseService: DatabaseService,
     private ngProgress: NgProgress,
+    private wasmService: WasmService,
     private appService: AppService,
     private zone: NgZone
   ) {
