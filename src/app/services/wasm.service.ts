@@ -96,8 +96,12 @@ export class WasmService {
   // Module in the given IDBDatabase.
   storeInDatabase(db, module, storeName, url) {
     const store = db.transaction([storeName], 'readwrite').objectStore(storeName);
-    const request = store.put(module, url);
-    request.onerror = err => { console.log(`Failed to store in wasm cache: ${err}`); };
-    request.onsuccess = err => { console.log(`Successfully stored ${url} in wasm cache`); };
+    try {
+      const request = store.put(module, url);
+      request.onerror = err => { console.log(`Failed to store in wasm cache: ${err}`); };
+      request.onsuccess = err => { console.log(`Successfully stored ${url} in wasm cache`); };
+    } catch {
+      console.log('Your broswer doesn\'t support structured cloning of WebAssembly.Module. Open chrome://flags/#enable-webassembly to enable it.');
+    }
   }
 }
