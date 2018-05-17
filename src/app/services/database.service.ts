@@ -1,10 +1,8 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
-import { Observable } from 'rxjs/Observable';
-import * as firebase from 'firebase/app';
-import 'rxjs/add/operator/takeUntil';
-import { Subject } from 'rxjs/Subject';
-import { tap } from 'rxjs/operators';
+import { AngularFirestore } from 'angularfire2/firestore';
+import { Subject } from 'rxjs';
+import { map, takeUntil, tap } from 'rxjs/operators';
+
 import { BgLoadingService } from '../components/bg-loading/bg-loading.service';
 
 @Injectable()
@@ -28,7 +26,7 @@ export class DatabaseService implements OnDestroy {
     afDb
       .doc('travel/password')
       .valueChanges()
-      .takeUntil(this.ngUnsubscribe)
+      .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((res: any) => {
         this.password = res.password;
       });
@@ -37,13 +35,14 @@ export class DatabaseService implements OnDestroy {
       ref.orderBy('timestamp')
     );
 
-    this.data = this.data_db.snapshotChanges().map(actions => {
-      return actions.map(action => {
-        const data = action.payload.doc.data();
-        const id = action.payload.doc.id;
-        return { id, ...data };
-      });
-    });
+    this.data = this.data_db.snapshotChanges().pipe(
+      map(actions => {
+        return (<any>actions).map(action => {
+          const data = action.payload.doc.data();
+          const id = action.payload.doc.id;
+          return { id, ...data };
+        });
+      }))
   }
 
   load_bg() {

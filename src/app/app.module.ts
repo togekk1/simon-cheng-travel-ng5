@@ -1,28 +1,28 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { AppComponent } from './app.component';
-import { environment } from '../environments/environment';
+import { NgProgressModule } from '@ngx-progressbar/core';
 import { AngularFireModule } from 'angularfire2';
-import { AngularFirestoreModule } from 'angularfire2/firestore';
-import { KeysPipe } from './app.pipe';
-
-// New imports to update based on AngularFire2 version 4
 import { AngularFireDatabaseModule } from 'angularfire2/database';
-import { NgProgressModule } from 'ngx-progressbar';
-// import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AngularFirestoreModule } from 'angularfire2/firestore';
+
+import { environment } from '../environments/environment';
+import { AppComponent } from './app.component';
 import { AutofocusDirective } from './app.directive';
+import { KeysPipe } from './app.pipe';
+import { AppService } from './app.service';
+import { BgLoadingComponent } from './components/bg-loading/bg-loading.component';
+import { BgLoadingService } from './components/bg-loading/bg-loading.service';
+import { JournalComponent } from './components/journal/journal.component';
+import { ContentToolsComponent } from './contenttools.component';
 import { NgInitDirective } from './nginit.directive';
 import { DatabaseService } from './services/database.service';
-import { AppService } from './app.service';
 import { WasmService } from './services/wasm.service';
-import { BgLoadingService } from './components/bg-loading/bg-loading.service';
-import { ContentToolsComponent } from './contenttools.component';
-import { JournalComponent } from './components/journal/journal.component';
-import { BgLoadingComponent } from './components/bg-loading/bg-loading.component';
 
+// New imports to update based on AngularFire2 version 4
+// import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyB6tIkSAFsEb8cZQSYq4tlOpuw9DWaF-_E',
@@ -51,7 +51,7 @@ export const firebaseConfig = {
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireDatabaseModule,
     AngularFirestoreModule.enablePersistence(),
-    NgProgressModule,
+    NgProgressModule.forRoot(),
     // FroalaEditorModule.forRoot(),
     // FroalaViewModule.forRoot(),
     FormsModule,

@@ -1,22 +1,11 @@
-import {
-  Component,
-  AnimationTransitionEvent,
-  AfterViewInit,
-  NgZone,
-  ChangeDetectorRef
-} from '@angular/core';
-import {
-  trigger,
-  style,
-  transition,
-  animate,
-  state
-} from '@angular/animations';
-import { FormGroup, FormControl } from '@angular/forms';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { AfterViewInit, ChangeDetectorRef, Component, NgZone } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+
 import { AppService } from './app.service';
-import { WasmService } from './services/wasm.service';
 import { BgLoadingService } from './components/bg-loading/bg-loading.service';
 import { DatabaseService } from './services/database.service';
+import { WasmService } from './services/wasm.service';
 
 @Component({
   selector: 'app-root',

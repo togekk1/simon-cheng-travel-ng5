@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Output, OnInit } from '@angular/core';
+import { Directive, EventEmitter, OnInit, Output } from '@angular/core';
 
 
 @Directive({

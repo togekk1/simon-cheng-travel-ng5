@@ -1,23 +1,10 @@
-import {
-  Component,
-  AfterViewChecked,
-  NgZone,
-  ViewChild,
-  ElementRef,
-  HostListener,
-  Inject
-} from '@angular/core';
-import {
-  trigger,
-  style,
-  transition,
-  animate,
-  state
-} from '@angular/animations';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Component, HostListener, Inject, NgZone } from '@angular/core';
 import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
+
+import { DatabaseService } from '../../services/database.service';
 import { WasmService } from '../../services/wasm.service';
 import { BgLoadingService } from '../bg-loading/bg-loading.service';
-import { DatabaseService } from '../../services/database.service';
 
 @Component({
   selector: 'app-journal',

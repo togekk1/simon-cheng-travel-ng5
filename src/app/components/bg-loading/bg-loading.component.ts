@@ -1,11 +1,12 @@
 import { Component, NgZone } from '@angular/core';
-import { BgLoadingService } from '../bg-loading/bg-loading.service';
-import { DatabaseService } from '../../services/database.service';
-import { NgProgress } from 'ngx-progressbar';
+import { NgProgress } from '@ngx-progressbar/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 import { AppService } from '../../app.service';
+import { DatabaseService } from '../../services/database.service';
 import { WasmService } from '../../services/wasm.service';
-import 'rxjs/add/operator/takeUntil';
-import { Subject } from 'rxjs/Subject';
+import { BgLoadingService } from '../bg-loading/bg-loading.service';
 
 @Component({
   selector: 'app-bg-loading',
@@ -36,7 +37,7 @@ export class BgLoadingComponent {
       const completedPercentage: Array<any> = [];
       let sum: number;
       this.databaseService.load_bg()
-        .takeUntil(this.ngUnsubscribe)
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((res: object) => {
           for (let i = 0; i < this.bgLoadingService.background.length; i++) {
             const xmlHTTP = new XMLHttpRequest();
@@ -55,7 +56,7 @@ export class BgLoadingComponent {
                 this.loading_percentage = sum.toFixed(0);
                 this.appService.intro_show = completedPercentage[0] === 100;
                 if (sum === 100) {
-                  this.ngProgress.done();
+                  this.ngProgress.complete();
                 }
               });
             };

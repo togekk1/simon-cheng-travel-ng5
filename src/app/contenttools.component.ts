@@ -1,22 +1,20 @@
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  NgModule,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  Output,
+  ViewChild,
+} from '@angular/core';
+
 declare var require: any;
 // ContentToolsLib.import('/node_modules/ContentTools/build/content-tools.min.js').then(res => { console.log('OK'); });
 const ContentToolsLib = require('../../node_modules/ContentTools/build/content-tools.js');
-
-import {
-  NgModule,
-  ViewChild,
-  EventEmitter,
-  AfterViewInit,
-  ElementRef,
-  Component,
-  Output,
-  Input,
-  OnDestroy,
-  OnChanges,
-  NgZone
-} from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { log } from 'util';
 
 @Component({
   selector: 'app-content-tools',
