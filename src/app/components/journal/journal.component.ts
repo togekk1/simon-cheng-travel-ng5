@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, HostListener, Inject, NgZone } from '@angular/core';
+import { Component, HostListener, Inject, NgZone, OnDestroy } from '@angular/core';
 import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
 
 import { DatabaseService } from '../../services/database.service';
@@ -28,7 +28,7 @@ import { BgLoadingService } from '../bg-loading/bg-loading.service';
     ])
   ]
 })
-export class JournalComponent {
+export class JournalComponent implements OnDestroy {
   content_top: number;
   index: number;
   pin_point: any;
@@ -62,7 +62,7 @@ export class JournalComponent {
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
-    private sanitizer: DomSanitizer,
+    // private sanitizer: DomSanitizer,
     private zone: NgZone,
     public databaseService: DatabaseService,
     public wasmService: WasmService,
@@ -70,7 +70,6 @@ export class JournalComponent {
   ) {
     this.zone.runOutsideAngular(() => {
       this.document.documentElement.scrollTop = 0;
-      this.wasmService.asc.reset_memory();
       this.arr = this.wasmService.asc.F64;
       this.top_arr = this.wasmService.asc.new_array();
     })
@@ -172,5 +171,9 @@ export class JournalComponent {
         }
       }
     })
+  }
+
+  ngOnDestroy() {
+    this.wasmService.asc.reset_memory();
   }
 }

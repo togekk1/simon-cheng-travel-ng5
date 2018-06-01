@@ -747,7 +747,7 @@ asn1@~0.2.3:
 
 assemblyscript@AssemblyScript/assemblyscript:
   version "0.5.0"
-  resolved "https://codeload.github.com/AssemblyScript/assemblyscript/tar.gz/9d25f78fc15d61cc180e55aa6d53636ec7350e6e"
+  resolved "https://codeload.github.com/AssemblyScript/assemblyscript/tar.gz/f69bccfe0923d1e44f636f15f4acb3c8698f1db5"
   dependencies:
     "@protobufjs/utf8" "^1.1.0"
     binaryen "48.0.0-nightly.20180520"

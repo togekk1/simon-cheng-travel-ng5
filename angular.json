@@ -19,7 +19,6 @@
             "assets": [
               "src/assets",
               "src/app/wasm/build/optimized.wasm",
-              "src/app/wasm/build/optimized.wasm.map",
               "src/favicon.ico"
             ],
             "styles": [
@@ -42,12 +41,10 @@
               "buildOptimizer": true,
               "serviceWorker": true,
               "ngswConfigPath": "src/ngsw-config.json",
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
-                }
-              ]
+              "fileReplacements": [{
+                "replace": "src/environments/environment.ts",
+                "with": "src/environments/environment.prod.ts"
+              }]
             }
           }
         },
