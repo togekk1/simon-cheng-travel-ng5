@@ -18,6 +18,8 @@
             "polyfills": "src/polyfills.ts",
             "assets": [
               "src/assets",
+              "src/app/wasm/build/optimized.wasm",
+              "src/app/wasm/build/optimized.wasm.map",
               "src/favicon.ico"
             ],
             "styles": [

@@ -1,3 +1,4 @@
+declare var require: any;
 import { Injectable, NgZone } from '@angular/core';
 
 @Injectable()
@@ -8,9 +9,11 @@ export class WasmService {
     private zone: NgZone
   ) {
     this.zone.runOutsideAngular(async (): Promise<any> => {
-      const wasmCacheVersion = 2;
-      const instance = await this.instantiateCachedURL(wasmCacheVersion, 'assets/optimized.wasm');
-      this.asc = instance.exports;
+      const wasmCacheVersion = 3;
+      const url = 'app/wasm/build/optimized.wasm';
+      const instance = await this.instantiateCachedURL(wasmCacheVersion, url);
+      // console.log(instance);
+      this.asc = instance;
     });
   }
 
@@ -26,6 +29,7 @@ export class WasmService {
   instantiateCachedURL(dbVersion, url) {
     const dbName = 'wasm-cache';
     const storeName = 'wasm-cache';
+    const loader = require("assemblyscript/lib/loader");
 
     // With all the Promise helper functions defined, we can now express the core
     // logic of an IndexedDB cache lookup. We start by trying to open a database.
@@ -34,25 +38,27 @@ export class WasmService {
       return this.lookupInDatabase(db, storeName, url).then(module => {
         // We do! Instantiate it with the given import object.
         console.log(`Found ${url} in wasm cache`);
-        return WebAssembly.instantiate(module);
-      }, errMsg => {
+        return loader.instantiate(module);
+      }, async errMsg => {
         // Nope! Compile from scratch and then store the compiled Module in 'db'
         // with key 'url' for next time.
         console.log(errMsg);
-        return WebAssembly.instantiateStreaming(fetch(url)).then(results => {
-          this.storeInDatabase(db, results.module, storeName, url);
-          return results.instance;
-        });
+        const response = await fetch(url);
+        var module = await WebAssembly.compileStreaming(response);
+        const instance = await loader.instantiate(module);
+        this.storeInDatabase(db, module, storeName, url);
+        return instance;
       });
     },
-      errMsg => {
+      async errMsg => {
         // If opening the database failed (due to permissions or quota), fall back
         // to simply fetching and compiling the module and don't try to store the
         // results.
         console.log(errMsg);
-        return WebAssembly.instantiateStreaming(fetch(url)).then(results => {
-          return results.instance;
-        });
+        const response = await fetch(url);
+        var module = await WebAssembly.compileStreaming(response);
+        const instance = await loader.instantiate(module);
+        return instance;
       });
   }
 

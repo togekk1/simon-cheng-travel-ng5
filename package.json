@@ -32,7 +32,6 @@
     "@ngx-progressbar/core": "^5.0.1",
     "@types/jasmine": "~2.5.53",
     "@types/jasminewd2": "~2.0.2",
-    "@types/node": "~6.0.60",
     "ContentTools": "^1.6.4",
     "angular-froala-wysiwyg": "^2.7.3",
     "angularfire2": "^5.0.0-rc.9",
