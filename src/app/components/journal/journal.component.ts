@@ -36,7 +36,6 @@ export class JournalComponent {
   pin_trigger_new: any;
   triggers: Array<string> = new Array();
   switch_top: number;
-  pin_opacity: Float64Array;
   opacity_arr: Array<any> = [];
   bg_selected = 0;
   switch: any;
@@ -52,11 +51,14 @@ export class JournalComponent {
   hide_content: boolean;
   text_hide: boolean;
   item: object;
-
   post: Object;
   editorState = false;
-  scroll_hint_top: number;
-  prologue_box_top: number;
+
+  top_arr: number;
+  pin_arr: number;
+  top_arr_offset: number = 17;
+  pin_arr_offset: number = 27;
+  arr: Float64Array;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -66,7 +68,17 @@ export class JournalComponent {
     public wasmService: WasmService,
     public bgLoadingService: BgLoadingService
   ) {
-    this.document.documentElement.scrollTop = 0;
+    this.zone.runOutsideAngular(() => {
+      this.document.documentElement.scrollTop = 0;
+      this.wasmService.asc.reset_memory();
+      this.arr = this.wasmService.asc.F64;
+      this.top_arr = this.wasmService.asc.new_array();
+    })
+  }
+
+  get_opacity() {
+    this.wasmService.asc.render_fadein(this.content_top, this.switch[0].getBoundingClientRect().top, this.top_arr);
+    return this.arr[this.top_arr_offset];
   }
 
   pin_track(index) {
@@ -80,15 +92,6 @@ export class JournalComponent {
   @HostListener('scroll', [])
   scrollevent() {
     this.zone.runOutsideAngular(() => {
-      if (!!this.pin_opacity) {
-        this.pin_trigger.forEach((pin, index) => {
-          this.pin_opacity[index] = this.wasmService.asc.render_trigger(pin.getBoundingClientRect().top);
-        });
-      }
-
-      this.scroll_hint_top = this.wasmService.asc.render_scroll_hint(this.content_top, this.switch[0].getBoundingClientRect().top);
-      this.prologue_box_top = this.wasmService.asc.render_prologue_box(this.content_top, this.switch[0].getBoundingClientRect().top);
-
       for (let i = 0; i < this.switch.length; i++) {
         this.opacity_arr[i] = this.wasmService.asc.render_bg(this.switch[i].getBoundingClientRect().top);
       }
@@ -98,52 +101,76 @@ export class JournalComponent {
     });
   }
 
-  render_content(i: number, item: object): void {
-    const content_root = document.getElementById('content' + i);
-    if (!!content_root) {
-      (<any>item).unbind = true;
-      const content = document.createElement('div');
-      content.innerHTML = (<any>item).en;
-      const frag = document.createDocumentFragment();
-      frag.appendChild(content);
-      const pin_point = frag.querySelectorAll('.pin_point');
-      const pin_trigger = frag.querySelectorAll('.pin_trigger');
-      const switch_frag = frag.querySelectorAll('.switch');
-      const hidden = frag.querySelectorAll('.hidden');
+  get_pin_opacity() {
+    this.zone.runOutsideAngular(() => {
+      this.pin_trigger.forEach((pin, index) => {
+        this.arr[this.pin_arr_offset + index] = pin.getBoundingClientRect().top;
+      });
+      this.wasmService.asc.render_trigger(this.pin_arr);
+      return this.arr[this.pin_arr_offset];
+    })
+  }
 
-      if (!!hidden.length && !this.hidden_unbind) {
-        this.hidden_unbind = true;
-        Array.from(hidden).forEach(el => {
-          (<any>el).style.opacity = '0';
-        });
+  get_scroll_hint_opacity() {
+    if (!!this.switch && !!this.switch.length)
+      return this.wasmService.asc.render_scroll_hint(this.content_top, this.switch[0].getBoundingClientRect().top);
+  }
+
+  get_prologue_box_opacity() {
+    if (!!this.switch && !!this.switch.length)
+      return this.wasmService.asc.render_prologue_box(this.content_top, this.switch[0].getBoundingClientRect().top);
+  }
+
+  render_content(last: boolean, i: number, item: object): void {
+    this.zone.runOutsideAngular(() => {
+      const content_root = document.getElementById('content' + i);
+      if (!!content_root) {
+        (<any>item).unbind = true;
+        const content = document.createElement('div');
+        content.innerHTML = (<any>item).en;
+        const frag = document.createDocumentFragment();
+        frag.appendChild(content);
+        const pin_point = frag.querySelectorAll('.pin_point');
+        const pin_trigger = frag.querySelectorAll('.pin_trigger');
+        const switch_frag = frag.querySelectorAll('.switch');
+        const hidden = frag.querySelectorAll('.hidden');
+
+        if (!!hidden.length && !this.hidden_unbind) {
+          this.hidden_unbind = true;
+          Array.from(hidden).forEach(el => {
+            (<any>el).style.opacity = '0';
+          });
+        }
+
+        if (
+          !!pin_point.length &&
+          !!pin_trigger.length &&
+          !this.trigger_unbind
+        ) {
+          Array.from(pin_point).forEach(el => {
+            this.triggers.push(el.innerHTML);
+            el.remove();
+          });
+
+          Array.from(pin_trigger).forEach(el => {
+            (<any>el).style.height = '1100px';
+          });
+        }
+
+        content_root.appendChild(frag);
+
+        this.pin_trigger = document.querySelectorAll('.pin_trigger');
+        this.switch = document.querySelectorAll('.switch');
+
+        if (last) {
+          this.pin_arr = this.wasmService.asc.new_pin_array(this.pin_trigger.length);
+        }
+
+        if (!!this.switch.length && !this.switch_unbind) {
+          this.switch_unbind = true;
+          this.content_top = switch_frag[0].getBoundingClientRect().top;
+        }
       }
-
-      if (
-        !!pin_point.length &&
-        !!pin_trigger.length &&
-        !this.trigger_unbind
-      ) {
-        Array.from(pin_point).forEach(el => {
-          this.triggers.push(el.innerHTML);
-          el.remove();
-        });
-
-        Array.from(pin_trigger).forEach(el => {
-          (<any>el).style.height = '1100px';
-        });
-      }
-
-      content_root.appendChild(frag);
-
-      this.pin_trigger = document.querySelectorAll('.pin_trigger');
-      this.switch = document.querySelectorAll('.switch');
-
-      this.pin_opacity = new Float64Array(this.pin_trigger.length);
-
-      if (!!this.switch.length && !this.switch_unbind) {
-        this.switch_unbind = true;
-        this.content_top = switch_frag[0].getBoundingClientRect().top;
-      }
-    }
+    })
   }
 }

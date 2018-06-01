@@ -1,5 +1,6 @@
 declare var require: any;
 import { Injectable, NgZone } from '@angular/core';
+import { environment } from "../../environments/environment";
 
 @Injectable()
 export class WasmService {
@@ -26,40 +27,49 @@ export class WasmService {
   // just the given URL) is versioned by dbVersion and any change in dbVersion on
   // any call to instantiateCachedURL() will conservatively clear out the entire
   // cache to avoid stale modules.
-  instantiateCachedURL(dbVersion, url) {
+  async instantiateCachedURL(dbVersion, url) {
     const dbName = 'wasm-cache';
     const storeName = 'wasm-cache';
     const loader = require("assemblyscript/lib/loader");
 
-    // With all the Promise helper functions defined, we can now express the core
-    // logic of an IndexedDB cache lookup. We start by trying to open a database.
-    return this.openDatabase(dbName, dbVersion, storeName).then(db => {
-      // Now see if we already have a compiled Module with key 'url' in 'db':
-      return this.lookupInDatabase(db, storeName, url).then(module => {
-        // We do! Instantiate it with the given import object.
-        console.log(`Found ${url} in wasm cache`);
-        return loader.instantiate(module);
-      }, async errMsg => {
-        // Nope! Compile from scratch and then store the compiled Module in 'db'
-        // with key 'url' for next time.
-        console.log(errMsg);
-        const response = await fetch(url);
-        var module = await WebAssembly.compileStreaming(response);
-        const instance = await loader.instantiate(module);
-        this.storeInDatabase(db, module, storeName, url);
-        return instance;
-      });
-    },
-      async errMsg => {
-        // If opening the database failed (due to permissions or quota), fall back
-        // to simply fetching and compiling the module and don't try to store the
-        // results.
-        console.log(errMsg);
-        const response = await fetch(url);
-        var module = await WebAssembly.compileStreaming(response);
-        const instance = await loader.instantiate(module);
-        return instance;
-      });
+    if (environment.production) {
+      // With all the Promise helper functions defined, we can now express the core
+      // logic of an IndexedDB cache lookup. We start by trying to open a database.
+      return this.openDatabase(dbName, dbVersion, storeName).then(db => {
+        // Now see if we already have a compiled Module with key 'url' in 'db':
+        return this.lookupInDatabase(db, storeName, url).then(module => {
+          // We do! Instantiate it with the given import object.
+          console.log(`Found ${url} in wasm cache`);
+          return loader.instantiate(module);
+        }, async errMsg => {
+          // Nope! Compile from scratch and then store the compiled Module in 'db'
+          // with key 'url' for next time.
+          console.log(errMsg);
+          const response = await fetch(url);
+          var module = await WebAssembly.compileStreaming(response);
+          const instance = await loader.instantiate(module);
+          this.storeInDatabase(db, module, storeName, url);
+          return instance;
+        });
+      },
+        async errMsg => {
+          // If opening the database failed (due to permissions or quota), fall back
+          // to simply fetching and compiling the module and don't try to store the
+          // results.
+          console.log(errMsg);
+          const response = await fetch(url);
+          var module = await WebAssembly.compileStreaming(response);
+          const instance = await loader.instantiate(module);
+          return instance;
+        });
+    } else {
+      console.log('Running in Development Mode. No wasm caching.');
+      const response = await fetch(url);
+      var module = await WebAssembly.compileStreaming(response);
+      const instance = await loader.instantiate(module);
+      return instance;
+    }
+
   }
 
   // This helper function Promise-ifies the operation of opening an IndexedDB

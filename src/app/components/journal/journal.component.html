@@ -10,30 +10,30 @@
 
     <div class="bg filter fill" [@hide_filter]="!hide_content ? 'void' : 'on'"></div>
 
-    <div class="scroll_hint" [ngStyle]="{'opacity': scroll_hint_top}">
+    <div class="scroll_hint" [ngStyle]="{'opacity': get_scroll_hint_opacity()}">
       <span>Scroll down</span>
     </div>
 
-    <div class="prologue_box" [ngStyle]="{'opacity': prologue_box_top}">
+    <div class="prologue_box" [ngStyle]="{'opacity': get_prologue_box_opacity()}">
 
       <div class="bleed"></div>
 
       <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'" [@hide_content]="!hide_content ? 'void' : 'on'" *ngIf="!!switch">
         <p id="fadein0" class="fadein">
         </p>
-        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 1)}">
+        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': !!switch.length && get_opacity()}">
           I still don&#39;t know where this flight will take me.
         </p>
-        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 2)}">
+        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': arr[18]}">
           I still don&#39;t know where this road will lead me.
         </p>
-        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 3)}">
+        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': arr[19]}">
           But one thing I know for sure,
         </p>
-        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 4)}">
+        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': arr[20]}">
           This will change my life forever.
         </p>
-        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': !!switch.length && wasmService.asc.render_fadein(content_top, switch[0].getBoundingClientRect().top, 8)}">
+        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': arr[21]}">
           The night before I left Taiwan, I asked myself over and over again if I have to do this. Yeah, first time being a backpacker.
           First time traveling alone. First time speaking English. And first time doing everything on my own without any
           help from travel agencies.
@@ -44,8 +44,10 @@
 
     </div>
 
-    <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index">
-      <span *ngIf="!!pin_opacity && pin_opacity[i] >= -0.5" [ngStyle]="{ 'opacity' : pin_opacity[i] }" [innerHTML]="trigger"></span>
+    <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index; let first = first">
+      <span *ngIf="first && get_pin_opacity()"></span>
+      <span *ngIf="!!pin_arr && arr[pin_arr_offset + i] >= -0.5" [ngStyle]="{ 'opacity' : arr[pin_arr_offset + i] }"
+        [innerHTML]="trigger"></span>
     </div>
   </div>
 
@@ -56,13 +58,13 @@
 
     <div class="content">
       <div>
-        <div class="session" *ngFor="let item of databaseService.data | async; trackBy:item_trackby; let i = index">
+        <div class="session" *ngFor="let item of databaseService.data | async; trackBy:item_trackby; let i = index; let last = last">
           <app-content-tools *ngIf="authorized" (save)="update_data($event, item, i)" [editorState]="editorState" (click)="authorized && $event.stopPropagation()">
             <i *ngIf="authorized" class="fa fa-trash pointer" (click)="$event.stopPropagation(); delete_data(item)"></i>
             <div data-editable [attr.data-name]="'content' + i" [innerHTML]="item.en"></div>
           </app-content-tools>
           <div *ngIf="!authorized" [attr.id]="'content' + i">
-            <div *ngIf="!item.unbind && render_content(i, item)"></div>
+            <div *ngIf="!item.unbind && render_content(last, i, item)"></div>
           </div>
         </div>
       </div>
