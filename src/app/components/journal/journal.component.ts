@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, HostListener, Inject, NgZone, OnDestroy } from '@angular/core';
+import { Component, HostListener, Inject, NgZone, OnDestroy, Input } from '@angular/core';
 import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
 
 import { DatabaseService } from '../../services/database.service';
@@ -29,6 +29,7 @@ import { BgLoadingService } from '../bg-loading/bg-loading.service';
   ]
 })
 export class JournalComponent implements OnDestroy {
+  @Input() authorized: boolean;
   content_top: number;
   index: number;
   pin_point: any;
@@ -45,7 +46,7 @@ export class JournalComponent implements OnDestroy {
   trigger_unbind: boolean;
   hidden_unbind: boolean;
   editorContent: Array<any> = [];
-  authorized: boolean;
+  // authorized: boolean;
   pass_show: boolean;
   editing: boolean;
   hide_content: boolean;
@@ -123,7 +124,7 @@ export class JournalComponent implements OnDestroy {
   render_content(last: boolean, i: number, item: object): void {
     this.zone.runOutsideAngular(() => {
       const content_root = document.getElementById('content' + i);
-      if (!!content_root) {
+      if (!!content_root || this.authorized) {
         (<any>item).unbind = true;
         const content = document.createElement('div');
         content.innerHTML = (<any>item).en;

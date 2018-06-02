@@ -66,6 +66,7 @@ export class AppComponent implements AfterViewInit {
   disabled = true;
   leave: boolean;
   password_group: FormGroup;
+  authorized: boolean;
 
   constructor(
     private zone: NgZone,
@@ -80,6 +81,13 @@ export class AppComponent implements AfterViewInit {
         password: new FormControl()
       });
     });
+  }
+
+  authorize() {
+    if (this.password_group.value.password === this.databaseService.password) {
+      this.authorized = true;
+      console.log('Enter editing mode');
+    }
   }
 
   ngAfterViewInit() {
