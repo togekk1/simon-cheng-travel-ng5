@@ -90,20 +90,21 @@ export class AppComponent implements AfterViewInit {
   authorize() {
     if (this.password_group.value.password === this.databaseService.password) {
       if (this.content_page_show) {
-        this.refresh();
+        this.refresh(true);
       } else {
         this.authorized = true;
       }
-      console.log('Enter editing mode');
     }
   }
 
-  refresh() {
+  refresh(authorized) {
     this.databaseService.refresh = false;
     this.content_page_show = false;
     window.setTimeout(() => {
-      this.authorized = true;
+      this.authorized = authorized;
       this.content_page_show = true;
+      authorized && console.log('Enter editing mode');
+      !authorized && console.log('Return to view mode');
     }, 1);
   }
 

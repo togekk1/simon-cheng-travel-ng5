@@ -78,8 +78,10 @@ export class JournalComponent implements OnDestroy {
   }
 
   get_opacity() {
-    this.wasmService.asc.render_fadein(this.content_top, this.switch[0].getBoundingClientRect().top, this.top_arr);
-    return this.arr[this.top_arr_offset];
+    if (!!this.switch && !!this.switch.length) {
+      this.wasmService.asc.render_fadein(this.content_top, this.switch[0].getBoundingClientRect().top, this.top_arr);
+      return this.arr[this.top_arr_offset];
+    }
   }
 
   pin_track(index) {
@@ -93,12 +95,14 @@ export class JournalComponent implements OnDestroy {
   @HostListener('scroll', [])
   scrollevent() {
     this.zone.runOutsideAngular(() => {
-      for (let i = 0; i < this.switch.length; i++) {
-        this.opacity_arr[i] = this.wasmService.asc.render_bg(this.switch[i].getBoundingClientRect().top);
-      }
+      if (!!this.switch && !!this.switch.length) {
+        for (let i = 0; i < this.switch.length; i++) {
+          this.opacity_arr[i] = this.wasmService.asc.render_bg(this.switch[i].getBoundingClientRect().top);
+        }
 
-      this.bg_selected = this.opacity_arr.findIndex(j => j > 0);
-      this.bg_selected = this.bg_selected === -1 ? this.opacity_arr.length : this.bg_selected;
+        this.bg_selected = this.opacity_arr.findIndex(j => j > 0);
+        this.bg_selected = this.bg_selected === -1 ? this.opacity_arr.length : this.bg_selected;
+      }
     });
   }
 

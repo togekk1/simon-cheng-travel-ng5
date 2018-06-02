@@ -21,7 +21,7 @@
       <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'" [@hide_content]="!hide_content ? 'void' : 'on'" *ngIf="!!switch">
         <p id="fadein0" class="fadein">
         </p>
-        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': !!switch.length && get_opacity()}">
+        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': get_opacity()}">
           I still don&#39;t know where this flight will take me.
         </p>
         <p id="fadein2" class="fadein" [ngStyle]="{'opacity': arr[18]}">

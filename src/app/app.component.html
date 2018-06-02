@@ -4,7 +4,7 @@
   <app-bg-loading *ngIf="!loading_hidden"></app-bg-loading>
 
   <!-- Journal -->
-  <div *ngIf="databaseService.refresh && refresh()"></div>
+  <div *ngIf="databaseService.refresh && refresh(true)"></div>
   <app-journal *ngIf="content_page_show" [authorized]="authorized"></app-journal>
 
   <!-- Intro -->
@@ -36,8 +36,9 @@
 
 <div class="password">
   <form [formGroup]="password_group" (ngSubmit)="pass_show = false; authorize()">
-    <input formControlName="password" *ngIf="pass_show" appAutofocus (keyup.esc)="pass_show = false">
+    <input formControlName="password" type="password" *ngIf="pass_show" appAutofocus (keyup.esc)="pass_show = false">
     <button class="pointer" style="opacity: 0" type="submit" *ngIf="pass_show">me</button>
-    <button class="pointer" style="opacity: 0" type="button" (click)="pass_show = true" *ngIf="!pass_show">me</button>
+    <button class="pointer" style="opacity: 0" type="button" (click)="authorized ? refresh(false) : (pass_show = true)"
+      *ngIf="!pass_show">me</button>
   </form>
 </div>
