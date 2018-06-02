@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, HostListener, Inject, NgZone, OnDestroy, Input } from '@angular/core';
+import { Component, HostListener, Inject, NgZone, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
 
 import { DatabaseService } from '../../services/database.service';
@@ -30,6 +30,7 @@ import { BgLoadingService } from '../bg-loading/bg-loading.service';
 })
 export class JournalComponent implements OnDestroy {
   @Input() authorized: boolean;
+  @Output() refresh: EventEmitter<void> = new EventEmitter();
   content_top: number;
   index: number;
   pin_point: any;
@@ -53,7 +54,7 @@ export class JournalComponent implements OnDestroy {
   text_hide: boolean;
   item: object;
   post: Object;
-  editorState = false;
+  editorState: boolean;
 
   top_arr: number;
   pin_arr: number;

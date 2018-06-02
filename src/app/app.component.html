@@ -4,20 +4,14 @@
   <app-bg-loading *ngIf="!loading_hidden"></app-bg-loading>
 
   <!-- Journal -->
-
+  <div *ngIf="databaseService.refresh && refresh()"></div>
   <app-journal *ngIf="content_page_show" [authorized]="authorized"></app-journal>
 
   <!-- Intro -->
   <div class="intro fill" *ngIf="appService.intro_show">
     <div class="intro_bg fill" [style.background-image]="databaseService.intro_bg" [@bg_intro]="leave ? 'void' : 'on'" (@bg_intro.done)="$event.toState === 'on' && loading_hidden = true; leave && appService.intro_show = false"></div>
     <div class="filter fill"></div>
-    <div class="password">
-      <form [formGroup]="password_group" (ngSubmit)="pass_show = false; authorize()">
-        <input formControlName="password" *ngIf="pass_show" appAutofocus (keyup.esc)="pass_show = false">
-        <button class="pointer" style="opacity: 0" type="submit" *ngIf="pass_show">me</button>
-        <button class="pointer" style="opacity: 0" type="button" (click)="pass_show = true" *ngIf="!pass_show">me</button>
-      </form>
-    </div>
+
     <div class="title">
       <div class="intro_content">
         <div class="pre" [@pre]="leave ? 'void' : 'on'">
@@ -28,8 +22,8 @@
             <h1>Simon Cheng</h1>
           </div>
           <div class="text-right">
-            <button class="enter plain_button" [ngClass]="{'pointer' : !disabled}" [@enter]="leave ? 'void' : 'on'" (@enter.done)="!leave && disabled = false"
-              [disabled]="disabled" (click)="disabled = true; leave = true; content_page_show = true">
+            <button class="enter plain_button" [ngStyle]="{'opacity': prod ? '0' : '1'}" [ngClass]="{'pointer' : !prod || !disabled}"
+              [@enter]="leave ? 'void' : 'on'" (@enter.done)="!leave && disabled = false" [disabled]="prod && disabled" (click)="disabled = true; leave = true; content_page_show = true">
               <span class="arrow">►</span>
               <span class="enter_text">Enter</span>
             </button>
@@ -38,4 +32,12 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="password">
+  <form [formGroup]="password_group" (ngSubmit)="pass_show = false; authorize()">
+    <input formControlName="password" *ngIf="pass_show" appAutofocus (keyup.esc)="pass_show = false">
+    <button class="pointer" style="opacity: 0" type="submit" *ngIf="pass_show">me</button>
+    <button class="pointer" style="opacity: 0" type="button" (click)="pass_show = true" *ngIf="!pass_show">me</button>
+  </form>
 </div>

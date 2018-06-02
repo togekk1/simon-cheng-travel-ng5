@@ -1,6 +1,7 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { AfterViewInit, ChangeDetectorRef, Component, NgZone } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { environment } from '../environments/environment';
 
 import { AppService } from './app.service';
 import { BgLoadingService } from './components/bg-loading/bg-loading.service';
@@ -67,6 +68,8 @@ export class AppComponent implements AfterViewInit {
   leave: boolean;
   password_group: FormGroup;
   authorized: boolean;
+  pass_show: boolean;
+  prod: boolean;
 
   constructor(
     private zone: NgZone,
@@ -80,14 +83,28 @@ export class AppComponent implements AfterViewInit {
       this.password_group = new FormGroup({
         password: new FormControl()
       });
+      this.prod = environment.production;
     });
   }
 
   authorize() {
     if (this.password_group.value.password === this.databaseService.password) {
-      this.authorized = true;
+      if (this.content_page_show) {
+        this.refresh();
+      } else {
+        this.authorized = true;
+      }
       console.log('Enter editing mode');
     }
+  }
+
+  refresh() {
+    this.databaseService.refresh = false;
+    this.content_page_show = false;
+    window.setTimeout(() => {
+      this.authorized = true;
+      this.content_page_show = true;
+    }, 1);
   }
 
   ngAfterViewInit() {

@@ -17,6 +17,7 @@ export class DatabaseService implements OnDestroy {
   data: Object;
   new_hide: boolean;
   editorContent_new: string;
+  refresh: boolean;
 
   constructor(
     public afDb: AngularFirestore,
@@ -42,7 +43,7 @@ export class DatabaseService implements OnDestroy {
           const id = action.payload.doc.id;
           return { id, ...data };
         });
-      }))
+      }));
   }
 
   load_bg() {
@@ -71,21 +72,14 @@ export class DatabaseService implements OnDestroy {
           this.data_db
             .doc(item.id)
             .set({ en: content_new, timestamp: item.timestamp })
-            .then(res => this.zone.run(() => this.new_hide = false));
-        } else {
-          this.zone.run(() => this.new_hide = false);
+            .then(res => this.zone.run(() => this.refresh = true));
         }
       } else {
         const content_new = content.content_new;
         if (!!content_new && content_new !== '') {
           this.data_db
             .add({ en: content_new, timestamp: new Date() })
-            .then(res => {
-              this.editorContent_new = null;
-              this.zone.run(() => this.new_hide = false);
-            });
-        } else {
-          this.zone.run(() => this.new_hide = false);
+            .then(res => this.zone.run(() => this.refresh = true));
         }
       }
     });
@@ -97,7 +91,7 @@ export class DatabaseService implements OnDestroy {
       this.data_db.doc(item.id)
         .delete()
         .then(res => {
-          this.zone.run(() => this.new_hide = false);
+          this.zone.run(() => this.refresh = true);
         });
     });
   }
