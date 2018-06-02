@@ -64,7 +64,7 @@ export class DatabaseService implements OnDestroy {
   }
 
   update_data(content, item, id) {
-    this.new_hide = true;
+    this.zone.run(() => this.new_hide = true);
     this.zone.runOutsideAngular(() => {
       if (item !== 'new') {
         const content_new = content['content' + id];
@@ -72,13 +72,18 @@ export class DatabaseService implements OnDestroy {
           this.data_db
             .doc(item.id)
             .set({ en: content_new, timestamp: item.timestamp })
+            .then(() => this.zone.run(() => this.new_hide = false);
+        } else {
+          this.zone.run(() => this.new_hide = false);
         }
       } else {
         const content_new = content.content_new;
         if (!!content_new && content_new !== '') {
           this.data_db
             .add({ en: content_new, timestamp: new Date() })
-            .then(() => this.zone.run(() => this.editorContent_new = null));
+            .then(() => this.zone.run(() => this.new_hide = false);
+        } else {
+          this.zone.run(() => this.new_hide = false);
         }
       }
     });

@@ -10,7 +10,7 @@ export class WasmService {
     private zone: NgZone
   ) {
     this.zone.runOutsideAngular(async (): Promise<any> => {
-      const wasmCacheVersion = 3;
+      const wasmCacheVersion = 4;
       const url = 'app/wasm/build/optimized.wasm';
       const instance = await this.instantiateCachedURL(wasmCacheVersion, url);
       // console.log(instance);
