@@ -92,7 +92,8 @@ export class AppComponent implements AfterViewInit {
       if (this.content_page_show) {
         this.refresh(true);
       } else {
-        this.authorized = true;
+      this.authorized = true;
+        console.log('Enter editing mode');
       }
     }
   }

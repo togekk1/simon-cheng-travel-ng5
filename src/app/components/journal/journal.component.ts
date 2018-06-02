@@ -5,6 +5,7 @@ import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
 import { DatabaseService } from '../../services/database.service';
 import { WasmService } from '../../services/wasm.service';
 import { BgLoadingService } from '../bg-loading/bg-loading.service';
+import { AppService } from '../../app.service';
 
 @Component({
   selector: 'app-journal',
@@ -68,10 +69,11 @@ export class JournalComponent implements OnDestroy {
     private zone: NgZone,
     public databaseService: DatabaseService,
     public wasmService: WasmService,
-    public bgLoadingService: BgLoadingService
+    public bgLoadingService: BgLoadingService,
+    private appService: AppService
   ) {
     this.zone.runOutsideAngular(() => {
-      this.document.documentElement.scrollTop = 0;
+      // this.document.documentElement.scrollTop = 0;
       this.arr = this.wasmService.asc.F64;
       this.top_arr = this.wasmService.asc.new_array();
     })
@@ -79,7 +81,7 @@ export class JournalComponent implements OnDestroy {
 
   get_opacity() {
     if (!!this.switch && !!this.switch.length) {
-      this.wasmService.asc.render_fadein(this.content_top, this.switch[0].getBoundingClientRect().top, this.top_arr);
+      this.wasmService.asc.render_fadein(this.appService.content_top, this.switch[0].getBoundingClientRect().top, this.top_arr);
       return this.arr[this.top_arr_offset];
     }
   }
@@ -118,12 +120,12 @@ export class JournalComponent implements OnDestroy {
 
   get_scroll_hint_opacity() {
     if (!!this.switch && !!this.switch.length)
-      return this.wasmService.asc.render_scroll_hint(this.content_top, this.switch[0].getBoundingClientRect().top);
+      return this.wasmService.asc.render_scroll_hint(this.appService.content_top, this.switch[0].getBoundingClientRect().top);
   }
 
   get_prologue_box_opacity() {
     if (!!this.switch && !!this.switch.length)
-      return this.wasmService.asc.render_prologue_box(this.content_top, this.switch[0].getBoundingClientRect().top);
+      return this.wasmService.asc.render_prologue_box(this.appService.content_top, this.switch[0].getBoundingClientRect().top);
   }
 
   render_content(last: boolean, i: number, item: object): void {
@@ -184,7 +186,8 @@ export class JournalComponent implements OnDestroy {
 
   render_switch() {
     this.switch = document.querySelectorAll('.switch');
-    this.content_top = this.switch[0].getBoundingClientRect().top;
+    if (!this.appService.content_top)
+      this.appService.content_top = this.switch[0].getBoundingClientRect().top;
   }
 
   ngOnDestroy() {
