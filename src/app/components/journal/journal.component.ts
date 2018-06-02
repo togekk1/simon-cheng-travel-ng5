@@ -122,56 +122,64 @@ export class JournalComponent implements OnDestroy {
   }
 
   render_content(last: boolean, i: number, item: object): void {
-    this.zone.runOutsideAngular(() => {
-      const content_root = document.getElementById('content' + i);
-      if (!!content_root || this.authorized) {
-        (<any>item).unbind = true;
-        const content = document.createElement('div');
-        content.innerHTML = (<any>item).en;
-        const frag = document.createDocumentFragment();
-        frag.appendChild(content);
-        const pin_point = frag.querySelectorAll('.pin_point');
-        const pin_trigger = frag.querySelectorAll('.pin_trigger');
-        const switch_frag = frag.querySelectorAll('.switch');
-        const hidden = frag.querySelectorAll('.hidden');
+    return this.zone.runOutsideAngular(() => {
+      if (!this.authorized) {
+        const content_root = document.getElementById('content' + i);
+        if (!!content_root) {
+          (<any>item).unbind = true;
+          const content = document.createElement('div');
+          content.innerHTML = (<any>item).en;
+          const frag = document.createDocumentFragment();
+          frag.appendChild(content);
+          const pin_point = frag.querySelectorAll('.pin_point');
+          const pin_trigger = frag.querySelectorAll('.pin_trigger');
+          const hidden = frag.querySelectorAll('.hidden');
 
-        if (!!hidden.length && !this.hidden_unbind) {
-          this.hidden_unbind = true;
-          Array.from(hidden).forEach(el => {
-            (<any>el).style.opacity = '0';
-          });
+          // Hidden Paragraphs
+          if (!!hidden.length && !this.hidden_unbind) {
+            this.hidden_unbind = true;
+            Array.from(hidden).forEach(el => {
+              (<any>el).style.opacity = '0';
+            });
+          }
+
+          // Pin Triggers
+          if (
+            !!pin_point.length &&
+            !!pin_trigger.length &&
+            !this.trigger_unbind
+          ) {
+            Array.from(pin_point).forEach(el => {
+              this.triggers.push(el.innerHTML);
+              el.remove();
+            });
+
+            Array.from(pin_trigger).forEach(el => {
+              (<any>el).style.height = '1100px';
+            });
+          }
+
+          content_root.appendChild(frag);
+
+          if (last) {
+            this.pin_trigger = document.querySelectorAll('.pin_trigger');
+            this.pin_arr = this.wasmService.asc.new_pin_array(this.pin_trigger.length);
+            this.render_switch();
+          }
         }
-
-        if (
-          !!pin_point.length &&
-          !!pin_trigger.length &&
-          !this.trigger_unbind
-        ) {
-          Array.from(pin_point).forEach(el => {
-            this.triggers.push(el.innerHTML);
-            el.remove();
-          });
-
-          Array.from(pin_trigger).forEach(el => {
-            (<any>el).style.height = '1100px';
-          });
-        }
-
-        content_root.appendChild(frag);
-
-        this.pin_trigger = document.querySelectorAll('.pin_trigger');
-        this.switch = document.querySelectorAll('.switch');
-
-        if (last) {
-          this.pin_arr = this.wasmService.asc.new_pin_array(this.pin_trigger.length);
-        }
-
-        if (!!this.switch.length && !this.switch_unbind) {
-          this.switch_unbind = true;
-          this.content_top = switch_frag[0].getBoundingClientRect().top;
+      } else {
+        const content_root = document.getElementById('edit' + i);
+        if (!!content_root) {
+          (<any>item).unbind = true;
+          last && this.render_switch();
         }
       }
-    })
+    });
+  }
+
+  render_switch() {
+    this.switch = document.querySelectorAll('.switch');
+    this.content_top = this.switch[0].getBoundingClientRect().top;
   }
 
   ngOnDestroy() {

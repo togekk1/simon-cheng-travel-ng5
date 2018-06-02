@@ -46,8 +46,7 @@
 
     <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index; let first = first">
       <span *ngIf="first && get_pin_opacity()"></span>
-      <span *ngIf="!!pin_arr && arr[pin_arr_offset + i] >= -0.5" [ngStyle]="{ 'opacity' : arr[pin_arr_offset + i] }"
-        [innerHTML]="trigger"></span>
+      <span *ngIf="!!pin_arr && arr[pin_arr_offset + i] >= -0.5" [ngStyle]="{ 'opacity' : arr[pin_arr_offset + i] }" [innerHTML]="trigger"></span>
     </div>
   </div>
 
@@ -59,8 +58,10 @@
     <div class="content">
       <div>
         <div class="session" *ngFor="let item of databaseService.data | async; trackBy:item_trackby; let i = index; let last = last">
-          <app-content-tools *ngIf="authorized" (save)="update_data($event, item, i)" [editorState]="editorState" (click)="authorized && $event.stopPropagation()">
-            <i *ngIf="authorized" class="fa fa-trash pointer" (click)="$event.stopPropagation(); delete_data(item)"></i>
+          <app-content-tools [attr.id]="'edit' + i" *ngIf="authorized" (save)="databaseService.update_data($event, item, i)" [editorState]="editorState"
+            (click)="authorized && $event.stopPropagation()">
+            <i class="fa fa-trash pointer" (click)="$event.stopPropagation(); databaseService.delete_data(item)"></i>
+            <div *ngIf="!item.unbind && render_content(last, i, item)"></div>
             <div data-editable [attr.data-name]="'content' + i" [innerHTML]="item.en"></div>
           </app-content-tools>
           <div *ngIf="!authorized" [attr.id]="'content' + i">
@@ -71,8 +72,8 @@
 
       <div class="new_post" *ngIf="authorized">
         <h3 *ngIf="authorized">Add new post here...</h3>
-        <app-content-tools *ngIf="!new_hide" ngInit (init)="editorState = true" (save)="update_data($event, 'new')" [editorState]="editorState"
-          (click)="authorized && $event.stopPropagation()">
+        <app-content-tools *ngIf="!new_hide" ngInit (init)="editorState = true" (save)="databaseService.update_data($event, 'new')"
+          [editorState]="editorState" (click)="authorized && $event.stopPropagation()">
           <div data-editable data-name="content_new" [innerHTML]="editorContent_new"></div>
         </app-content-tools>
       </div>
