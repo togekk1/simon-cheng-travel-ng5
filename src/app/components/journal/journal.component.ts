@@ -102,8 +102,6 @@ export class JournalComponent implements OnDestroy {
           this.opacity_arr[i] = this.wasmService.asc.render_bg(this.switch[i].getBoundingClientRect().top);
         }
 
-        console.log(this.switch);
-
         this.bg_selected = this.opacity_arr.findIndex(j => j > 0);
         this.bg_selected = this.bg_selected === -1 ? this.opacity_arr.length : this.bg_selected;
       }
