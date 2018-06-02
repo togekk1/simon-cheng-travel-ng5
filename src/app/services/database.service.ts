@@ -72,7 +72,7 @@ export class DatabaseService implements OnDestroy {
           this.data_db
             .doc(item.id)
             .set({ en: content_new, timestamp: item.timestamp })
-            .then(() => this.zone.run(() => this.new_hide = false);
+            .then(() => this.zone.run(() => this.new_hide = false));
         } else {
           this.zone.run(() => this.new_hide = false);
         }
@@ -81,7 +81,7 @@ export class DatabaseService implements OnDestroy {
         if (!!content_new && content_new !== '') {
           this.data_db
             .add({ en: content_new, timestamp: new Date() })
-            .then(() => this.zone.run(() => this.new_hide = false);
+            .then(() => this.zone.run(() => this.new_hide = false));
         } else {
           this.zone.run(() => this.new_hide = false);
         }
