@@ -6,15 +6,16 @@
 
 ### Language
 
-* **Javascript ES7**
+* **Typescript**
+* **Webassembly**
 * **HTML5**
 * **CSS3**
 
-### Library
+### Framework
 
-* **Polymer** for routing and webcomponents
-* **GSAP** initial route ASAP
-* **ScrollMagic** components for remaining routes
+* **Angular 6** main framwork
+* **[AssemblyScript](https://github.com/AssemblyScript/assemblyscript)** for all calculating functions
+* **Bootstrap 4** Responsive Web Design
 
 ### Hosting
 
