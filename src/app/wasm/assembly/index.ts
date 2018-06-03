@@ -3,7 +3,7 @@ export { allocate_memory, reset_memory };
 
 export function render_trigger(ptr: i32, len: i32): void {
   for (let i = ptr; i < ptr + len * 8; i += 8) {
-    const a = load<f64>(i);
+    let a = load<f64>(i);
     if (a > -200) {
       a = 1 - a / 200;
     } else {
@@ -43,7 +43,7 @@ export function render_prologue_box(content_top: f64, switch_top: f64): f64 {
 
 export function render_fadein(content_top: f64, switch_top: f64, ptr: i32): void {
   for (let i = 0; i < 5; i++) {
-    const a = load<f64>(ptr + i * 8);
+    let a = load<f64>(ptr + i * 8);
 
     if (i !== 4) {
       a = (content_top - switch_top) / 700 - (i + 1);
@@ -59,16 +59,12 @@ export function render_fadein(content_top: f64, switch_top: f64, ptr: i32): void
   }
 }
 
-export function render_bg(top: f64): f64 {
-  const opacity = top / 300;
-  if (opacity >= 0) {
-    if (opacity <= 1) {
-      return opacity;
-    } else {
-      return 1;
-    }
-  } else {
-    return 0;
+export function render_bg(ptr: i32, len: i32): void {
+  for (let i = ptr; i < ptr + len * 8; i += 8) {
+    let a = load<f64>(i) / 300;
+    if (a > 1) a = 1;
+    else if (a < 0) a = 0;
+    store<f64>(i, a);
   }
 }
 

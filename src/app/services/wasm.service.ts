@@ -10,11 +10,12 @@ export class WasmService {
     private zone: NgZone
   ) {
     this.zone.runOutsideAngular(async (): Promise<any> => {
-      const wasmCacheVersion = 4;
+      const wasmCacheVersion = 5;
       const url = 'app/wasm/build/optimized.wasm';
       const instance = await this.instantiateCachedURL(wasmCacheVersion, url);
       // console.log(instance);
       this.asc = instance;
+      this.asc.reset_memory();
     });
   }
 
@@ -46,8 +47,8 @@ export class WasmService {
           // with key 'url' for next time.
           console.log(errMsg);
           const response = await fetch(url);
-          var module = await WebAssembly.compileStreaming(response);
-          const instance = await loader.instantiate(module);
+          const myModule = await WebAssembly.compileStreaming(response);
+          const instance = await loader.instantiate(myModule);
           this.storeInDatabase(db, module, storeName, url);
           return instance;
         });
@@ -58,15 +59,15 @@ export class WasmService {
           // results.
           console.log(errMsg);
           const response = await fetch(url);
-          var module = await WebAssembly.compileStreaming(response);
-          const instance = await loader.instantiate(module);
+          const myModule = await WebAssembly.compileStreaming(response);
+          const instance = await loader.instantiate(myModule);
           return instance;
         });
     } else {
       console.log('Running in Development Mode. No wasm caching.');
       const response = await fetch(url);
-      var module = await WebAssembly.compileStreaming(response);
-      const instance = await loader.instantiate(module);
+      const myModule = await WebAssembly.compileStreaming(response);
+      const instance = await loader.instantiate(myModule);
       return instance;
     }
 

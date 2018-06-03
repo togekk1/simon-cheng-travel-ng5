@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, HostListener, Inject, NgZone, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, HostListener, Inject, NgZone, Input, Output, EventEmitter } from '@angular/core';
 import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
 
 import { DatabaseService } from '../../services/database.service';
@@ -29,7 +29,7 @@ import { AppService } from '../../app.service';
     ])
   ]
 })
-export class JournalComponent implements OnDestroy {
+export class JournalComponent {
   @Input() authorized: boolean;
   @Output() refresh: EventEmitter<void> = new EventEmitter();
   content_top: number;
@@ -59,6 +59,7 @@ export class JournalComponent implements OnDestroy {
 
   fadein_arr: Int32Array;
   pin_arr: Int32Array;
+  bg_arr: Int32Array;
   // top_arr_offset: number = 17;
   arr: Float64Array;
 
@@ -97,14 +98,16 @@ export class JournalComponent implements OnDestroy {
   }
 
   @HostListener('scroll', [])
-  scrollevent() {
+  scrollevent() { }
+
+  get_bg_opacity() {
     this.zone.runOutsideAngular(() => {
       if (!!this.switch && !!this.switch.length) {
         for (let i = 0; i < this.switch.length; i++) {
-          this.opacity_arr[i] = this.wasmService.asc.render_bg(this.switch[i].getBoundingClientRect().top);
+          this.arr[this.bg_arr[i] >>> 3] = this.switch[i].getBoundingClientRect().top;
         }
-
-        this.bg_selected = this.opacity_arr.findIndex(j => j > 0);
+        this.wasmService.asc.render_bg(this.bg_arr[0], this.switch.length);
+        this.bg_selected = this.bg_arr.findIndex(j => this.arr[j >>> 3] > 0);
         this.bg_selected = this.bg_selected === -1 ? this.opacity_arr.length : this.bg_selected;
       }
     });
@@ -121,6 +124,10 @@ export class JournalComponent implements OnDestroy {
 
   get_value(ptr: number) {
     return this.arr[ptr >>> 3];
+  }
+
+  get_index(index: number) {
+    console.log(index);
   }
 
   get_scroll_hint_opacity() {
@@ -179,6 +186,9 @@ export class JournalComponent implements OnDestroy {
             for (let i = 0; i < this.pin_trigger.length; i++)
               this.pin_arr[i] = this.wasmService.asc.allocate_memory(1);
             this.render_switch();
+            this.bg_arr = new Int32Array(this.switch.length);
+            for (let i = 0; i < this.switch.length; i++)
+              this.bg_arr[i] = this.wasmService.asc.allocate_memory(1);
           }
         }
       } else {
@@ -195,9 +205,5 @@ export class JournalComponent implements OnDestroy {
     this.switch = document.querySelectorAll('.switch');
     if (!this.appService.content_top)
       this.appService.content_top = this.switch[0].getBoundingClientRect().top;
-  }
-
-  ngOnDestroy() {
-    this.wasmService.asc.reset_memory();
   }
 }
