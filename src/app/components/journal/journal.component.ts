@@ -108,7 +108,7 @@ export class JournalComponent {
         }
         this.wasmService.asc.render_bg(this.bg_arr[0], this.switch.length);
         this.bg_selected = this.bg_arr.findIndex(j => this.arr[j >>> 3] > 0);
-        this.bg_selected = this.bg_selected === -1 ? this.opacity_arr.length : this.bg_selected;
+        this.bg_selected = this.bg_selected === -1 ? this.switch.length : this.bg_selected;
       }
     });
   }
@@ -124,6 +124,15 @@ export class JournalComponent {
 
   get_value(ptr: number) {
     return this.arr[ptr >>> 3];
+  }
+
+
+  get_bg_value(i: number) {
+    const index = this.bgLoadingService.background.length - i - 1;
+    if (index < this.switch.length)
+      return this.arr[this.bg_arr[index] >>> 3];
+    if (index === this.switch.length)
+      return 1;
   }
 
   get_index(index: number) {
