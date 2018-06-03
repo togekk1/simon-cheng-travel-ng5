@@ -49,7 +49,7 @@ export class WasmService {
           const response = await fetch(url);
           const myModule = await WebAssembly.compileStreaming(response);
           const instance = await loader.instantiate(myModule);
-          this.storeInDatabase(db, module, storeName, url);
+          this.storeInDatabase(db, myModule, storeName, url);
           return instance;
         });
       },
