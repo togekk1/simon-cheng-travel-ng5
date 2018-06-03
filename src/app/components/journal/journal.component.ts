@@ -186,9 +186,6 @@ export class JournalComponent {
             for (let i = 0; i < this.pin_trigger.length; i++)
               this.pin_arr[i] = this.wasmService.asc.allocate_memory(1);
             this.render_switch();
-            this.bg_arr = new Int32Array(this.switch.length);
-            for (let i = 0; i < this.switch.length; i++)
-              this.bg_arr[i] = this.wasmService.asc.allocate_memory(1);
           }
         }
       } else {
@@ -205,5 +202,8 @@ export class JournalComponent {
     this.switch = document.querySelectorAll('.switch');
     if (!this.appService.content_top)
       this.appService.content_top = this.switch[0].getBoundingClientRect().top;
+    this.bg_arr = new Int32Array(this.switch.length);
+    for (let i = 0; i < this.switch.length; i++)
+      this.bg_arr[i] = this.wasmService.asc.allocate_memory(1);
   }
 }
