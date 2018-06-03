@@ -57,9 +57,9 @@ export class JournalComponent implements OnDestroy {
   post: Object;
   editorState: boolean;
 
-  top_arr: number;
-  pin_arr_ptr: Int32Array;
-  top_arr_offset: number = 17;
+  fadein_arr: Int32Array;
+  pin_arr: Int32Array;
+  // top_arr_offset: number = 17;
   arr: Float64Array;
 
   constructor(
@@ -74,14 +74,17 @@ export class JournalComponent implements OnDestroy {
     this.zone.runOutsideAngular(() => {
       // this.document.documentElement.scrollTop = 0;
       this.arr = this.wasmService.asc.F64;
-      this.top_arr = this.wasmService.asc.new_array();
+      // this.top_arr = this.wasmService.asc.new_array();
+      this.fadein_arr = new Int32Array(5);
+      for (let i = 0; i < 5; i++)
+        this.fadein_arr[i] = this.wasmService.asc.allocate_memory(1);
     })
   }
 
   get_opacity() {
     if (!!this.switch && !!this.switch.length) {
-      this.wasmService.asc.render_fadein(this.appService.content_top, this.switch[0].getBoundingClientRect().top, this.top_arr);
-      return this.arr[this.top_arr_offset];
+      this.wasmService.asc.render_fadein(this.appService.content_top, this.switch[0].getBoundingClientRect().top, this.fadein_arr[0]);
+      return this.arr[this.fadein_arr[0] >>> 3];
     }
   }
 
@@ -110,9 +113,9 @@ export class JournalComponent implements OnDestroy {
   get_pin_opacity() {
     this.zone.runOutsideAngular(() => {
       this.pin_trigger.forEach((pin, index) => {
-        this.arr[this.pin_arr_ptr[index] >>> 3] = pin.getBoundingClientRect().top;
+        this.arr[this.pin_arr[index] >>> 3] = pin.getBoundingClientRect().top;
       });
-      this.wasmService.asc.render_trigger(this.pin_arr_ptr[0], this.pin_trigger.length);
+      this.wasmService.asc.render_trigger(this.pin_arr[0], this.pin_trigger.length);
     })
   }
 
@@ -172,10 +175,9 @@ export class JournalComponent implements OnDestroy {
 
           if (last) {
             this.pin_trigger = document.querySelectorAll('.pin_trigger');
-            this.pin_arr_ptr = new Int32Array(this.pin_trigger.length);
+            this.pin_arr = new Int32Array(this.pin_trigger.length);
             for (let i = 0; i < this.pin_trigger.length; i++)
-              this.pin_arr_ptr[i] = this.wasmService.asc.allocate_memory(1);
-
+              this.pin_arr[i] = this.wasmService.asc.allocate_memory(1);
             this.render_switch();
           }
         }

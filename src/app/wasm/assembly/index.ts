@@ -41,15 +41,22 @@ export function render_prologue_box(content_top: f64, switch_top: f64): f64 {
   }
 }
 
-export function render_fadein(content_top: f64, switch_top: f64, arr: Float64Array): void {
-  for (let i = 0; i < 4; i++) {
-    arr[i] = (content_top - switch_top) / 700 - (i + 1);
-    if (arr[i] > 1) arr[i] = 1;
-    else if (arr[i] < 0) arr[i] = 0;
+export function render_fadein(content_top: f64, switch_top: f64, ptr: i32): void {
+  for (let i = 0; i < 5; i++) {
+    const a = load<f64>(ptr + i * 8);
+
+    if (i !== 4) {
+      a = (content_top - switch_top) / 700 - (i + 1);
+    } else {
+      a = (content_top - switch_top) / 700 - 8;
+      if (a > 1) a = 1;
+      else if (a < 0) a = 0;
+    }
+
+    if (a > 1) a = 1;
+    else if (a < 0) a = 0;
+    store<f64>(ptr + i * 8, a);
   }
-  arr[4] = (content_top - switch_top) / 700 - 8;
-  if (arr[4] > 1) arr[4] = 1;
-  else if (arr[4] < 0) arr[4] = 0;
 }
 
 export function render_bg(top: f64): f64 {

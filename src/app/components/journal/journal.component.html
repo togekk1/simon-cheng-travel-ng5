@@ -24,16 +24,16 @@
         <p id="fadein1" class="fadein" [ngStyle]="{'opacity': get_opacity()}">
           I still don&#39;t know where this flight will take me.
         </p>
-        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': arr[18]}">
+        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': get_value(this.fadein_arr[1])}">
           I still don&#39;t know where this road will lead me.
         </p>
-        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': arr[19]}">
+        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': get_value(this.fadein_arr[2])}">
           But one thing I know for sure,
         </p>
-        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': arr[20]}">
+        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': get_value(this.fadein_arr[3])}">
           This will change my life forever.
         </p>
-        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': arr[21]}">
+        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': get_value(this.fadein_arr[4])}">
           The night before I left Taiwan, I asked myself over and over again if I have to do this. Yeah, first time being a backpacker.
           First time traveling alone. First time speaking English. And first time doing everything on my own without any
           help from travel agencies.
@@ -46,8 +46,7 @@
 
     <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index; let first = first">
       <span *ngIf="first && get_pin_opacity()"></span>
-      <span *ngIf="!!pin_arr_ptr && (get_value(pin_arr_ptr[i]) >= -0.5)" [ngStyle]="{ 'opacity' : get_value(pin_arr_ptr[i]) }"
-        [innerHTML]="trigger"></span>
+      <span *ngIf="!!pin_arr && (get_value(pin_arr[i]) >= -0.5)" [ngStyle]="{ 'opacity' : get_value(pin_arr[i]) }" [innerHTML]="trigger"></span>
     </div>
   </div>
 
