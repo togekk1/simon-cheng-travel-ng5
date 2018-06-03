@@ -46,7 +46,8 @@
 
     <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index; let first = first">
       <span *ngIf="first && get_pin_opacity()"></span>
-      <span *ngIf="!!pin_arr && arr[pin_arr_offset + i] >= -0.5" [ngStyle]="{ 'opacity' : arr[pin_arr_offset + i] }" [innerHTML]="trigger"></span>
+      <span *ngIf="!!pin_arr_ptr && (get_value(pin_arr_ptr[i]) >= -0.5)" [ngStyle]="{ 'opacity' : get_value(pin_arr_ptr[i]) }"
+        [innerHTML]="trigger"></span>
     </div>
   </div>
 

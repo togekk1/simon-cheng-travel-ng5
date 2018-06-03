@@ -58,9 +58,8 @@ export class JournalComponent implements OnDestroy {
   editorState: boolean;
 
   top_arr: number;
-  pin_arr: number;
+  pin_arr_ptr: Int32Array;
   top_arr_offset: number = 17;
-  pin_arr_offset: number = 27;
   arr: Float64Array;
 
   constructor(
@@ -111,11 +110,14 @@ export class JournalComponent implements OnDestroy {
   get_pin_opacity() {
     this.zone.runOutsideAngular(() => {
       this.pin_trigger.forEach((pin, index) => {
-        this.arr[this.pin_arr_offset + index] = pin.getBoundingClientRect().top;
+        this.arr[this.pin_arr_ptr[index] >>> 3] = pin.getBoundingClientRect().top;
       });
-      this.wasmService.asc.render_trigger(this.pin_arr);
-      return this.arr[this.pin_arr_offset];
+      this.wasmService.asc.render_trigger(this.pin_arr_ptr[0], this.pin_trigger.length);
     })
+  }
+
+  get_value(ptr: number) {
+    return this.arr[ptr >>> 3];
   }
 
   get_scroll_hint_opacity() {
@@ -170,7 +172,10 @@ export class JournalComponent implements OnDestroy {
 
           if (last) {
             this.pin_trigger = document.querySelectorAll('.pin_trigger');
-            this.pin_arr = this.wasmService.asc.new_pin_array(this.pin_trigger.length);
+            this.pin_arr_ptr = new Int32Array(this.pin_trigger.length);
+            for (let i = 0; i < this.pin_trigger.length; i++)
+              this.pin_arr_ptr[i] = this.wasmService.asc.allocate_memory(1);
+
             this.render_switch();
           }
         }

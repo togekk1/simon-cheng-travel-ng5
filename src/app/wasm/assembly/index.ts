@@ -1,15 +1,17 @@
 import "allocator/arena";
-export { reset_memory };
+export { allocate_memory, reset_memory };
 
-export function render_trigger(arr: Float64Array): void {
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] > -200) {
-      arr[i] = 1 - arr[i] / 200;
+export function render_trigger(ptr: i32, len: i32): void {
+  for (let i = ptr; i < ptr + len * 8; i += 8) {
+    const a = load<f64>(i);
+    if (a > -200) {
+      a = 1 - a / 200;
     } else {
-      arr[i] = 4 - arr[i] / -200;
+      a = 4 - a / -200;
     }
 
-    if (arr[i] < 0) arr[i] = 0;
+    if (a < 0) a = 0;
+    store<f64>(i, a);
   }
 }
 
@@ -72,11 +74,13 @@ export function new_array(): Float64Array {
   return arr;
 }
 
-export function new_pin_array(len: i32): Float64Array {
-  const pin_arr: Float64Array = new Float64Array(len);
-  return pin_arr;
-}
+// export function new_pin_array(len: i32): i32 {
+//   const pin_arr = allocate_memory(64);
 
-// export function get_value(arr: Float64Array): f64 {
-//   return arr[0];
+//   // const pin_arr: Float64Array = new Float64Array(len);
+//   return pin_arr;
 // }
+
+export function get_value(ptr: i32): f64 {
+  return load<f64>(ptr);
+}
