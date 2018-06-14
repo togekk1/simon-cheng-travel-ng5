@@ -10,5 +10,8 @@
     "test.ts",
     "**/*.spec.ts",
     "app/wasm/assembly/**"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "disableTypeScriptVersionCheck": true
+  }
 }

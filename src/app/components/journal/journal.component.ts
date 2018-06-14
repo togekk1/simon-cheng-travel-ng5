@@ -1,11 +1,11 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, HostListener, Inject, NgZone, Input, Output, EventEmitter } from '@angular/core';
-import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
+import { Component, EventEmitter, HostListener, Inject, Input, NgZone, Output } from '@angular/core';
+import { DOCUMENT } from '@angular/platform-browser';
 
+import { AppService } from '../../app.service';
 import { DatabaseService } from '../../services/database.service';
 import { WasmService } from '../../services/wasm.service';
 import { BgLoadingService } from '../bg-loading/bg-loading.service';
-import { AppService } from '../../app.service';
 
 @Component({
   selector: 'app-journal',
@@ -48,7 +48,6 @@ export class JournalComponent {
   trigger_unbind: boolean;
   hidden_unbind: boolean;
   editorContent: Array<any> = [];
-  // authorized: boolean;
   pass_show: boolean;
   editing: boolean;
   hide_content: boolean;
@@ -60,12 +59,10 @@ export class JournalComponent {
   fadein_arr: Int32Array;
   pin_arr: Int32Array;
   bg_arr: Int32Array;
-  // top_arr_offset: number = 17;
   arr: Float64Array;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
-    // private sanitizer: DomSanitizer,
     private zone: NgZone,
     public databaseService: DatabaseService,
     public wasmService: WasmService,
@@ -73,9 +70,7 @@ export class JournalComponent {
     private appService: AppService
   ) {
     this.zone.runOutsideAngular(() => {
-      // this.document.documentElement.scrollTop = 0;
       this.arr = this.wasmService.asc.F64;
-      // this.top_arr = this.wasmService.asc.new_array();
       this.fadein_arr = new Int32Array(5);
       for (let i = 0; i < 5; i++)
         this.fadein_arr[i] = this.wasmService.asc.allocate_memory(1);
@@ -133,10 +128,6 @@ export class JournalComponent {
       return this.arr[this.bg_arr[index] >>> 3];
     if (index === this.switch.length)
       return 1;
-  }
-
-  get_index(index: number) {
-    console.log(index);
   }
 
   get_scroll_hint_opacity() {
