@@ -1,7 +1,7 @@
 <div class="travel fill" id="travel" (scroll)="scrollevent()">
   <div class="bg_container fill">
 
-    <div class="bg_content" *ngIf="!!bg_arr">
+    <div class="bg_content">
       <div class="fill" *ngFor="let bg of bgLoadingService.background; trackBy:index; let i = index; let first = first">
         <span *ngIf="first && get_bg_opacity()"></span>
         <div class="bg img" *ngIf="wasmService.asc.bg_show(i, bgLoadingService.background.length, bg_selected)" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': get_bg_value(i)}">
