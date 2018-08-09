@@ -9,7 +9,8 @@
   "exclude": [
     "test.ts",
     "**/*.spec.ts",
-    "app/wasm/assembly/**"
+    "app/wasm/assembly/**",
+    "app/assemblyscript/**"
   ],
   "angularCompilerOptions": {
     "disableTypeScriptVersionCheck": true
