@@ -1,6 +1,7 @@
 declare var require: any;
 import { Injectable, NgZone } from '@angular/core';
 import { environment } from "../../environments/environment";
+import wasmWorker from 'wasm-worker';
 
 @Injectable()
 export class WasmService {
@@ -10,11 +11,10 @@ export class WasmService {
     private zone: NgZone
   ) {
     this.zone.runOutsideAngular(async (): Promise<any> => {
-      const wasmCacheVersion = 7;
+      const wasmCacheVersion = 9;
       const url = 'assets/optimized.wasm';
       const instance = await this.instantiateCachedURL(wasmCacheVersion, url);
       this.asc = instance;
-      this.asc.reset_memory();
     });
   }
 
@@ -64,12 +64,24 @@ export class WasmService {
         });
     } else {
       console.log('Running in Development Mode. No wasm caching.');
-      const response = await fetch(url);
-      const myModule = await WebAssembly.compileStreaming(response);
-      const instance = await loader.instantiate(myModule);
-      return instance;
+      const memory = new WebAssembly.Memory({ initial: 256 });
+      const myModule = await wasmWorker(url, {
+        getImportObject: memory => ({
+          memory,
+          env: {
+            abort(msg, file, line, column) {
+              console.error("abort called at main.ts:" + line + ":" + column);
+            }
+          }
+        })
+      })
+      const exports = myModule.exports;
+      exports.memory_allocate = exports["memory.allocate"];
+      exports.memory_fill = exports["memory.fill"];
+      exports.memory_reset = exports["memory.reset"];
+      exports.F64 = new Float64Array(memory.buffer);
+      return exports;
     }
-
   }
 
   // This helper function Promise-ifies the operation of opening an IndexedDB

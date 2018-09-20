@@ -104,7 +104,7 @@ export class AppComponent implements AfterViewInit {
     this.zone.runOutsideAngular(() => {
       this.databaseService.refresh = false;
       this.content_page_show = false;
-      this.wasmService.asc.reset_memory();
+      this.wasmService.asc.memory_reset();
       window.setTimeout(() => {
         this.authorized = authorized;
         this.content_page_show = true;

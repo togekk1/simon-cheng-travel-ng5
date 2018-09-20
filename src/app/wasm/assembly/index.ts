@@ -1,5 +1,5 @@
 import "allocator/arena";
-export { allocate_memory, reset_memory };
+export { memory };
 
 export function render_trigger(ptr: i32, len: i32): void {
   for (let i = ptr; i < ptr + len * 8; i += 8) {
@@ -78,7 +78,7 @@ export function new_array(): Float64Array {
 }
 
 // export function new_pin_array(len: i32): i32 {
-//   const pin_arr = allocate_memory(64);
+//   const pin_arr = memory.allocate(64);
 
 //   // const pin_arr: Float64Array = new Float64Array(len);
 //   return pin_arr;
