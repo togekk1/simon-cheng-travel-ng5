@@ -64,7 +64,9 @@ export class WasmService {
         });
     } else {
       console.log('Running in Development Mode. No wasm caching.');
-      const memory = new WebAssembly.Memory({ initial: 256 });
+
+      const memory = new WebAssembly.Memory({ initial: 0 });
+      memory.grow(1);
       const myModule = await wasmWorker(url, {
         getImportObject: memory => ({
           memory,
@@ -75,12 +77,14 @@ export class WasmService {
           }
         })
       })
-      const exports = myModule.exports;
-      exports.memory_allocate = exports["memory.allocate"];
-      exports.memory_fill = exports["memory.fill"];
-      exports.memory_reset = exports["memory.reset"];
-      exports.F64 = new Float64Array(memory.buffer);
-      return exports;
+      let exports = myModule.exports;
+      exports = { memory, ...exports };
+      const instance = loader.instantiate(exports);
+
+      // const response = await fetch(url);
+      // const myModule = await WebAssembly.compileStreaming(response);
+      // const instance = await loader.instantiate(myModule);
+      return instance;
     }
   }
 

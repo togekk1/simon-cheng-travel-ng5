@@ -69,11 +69,11 @@ export class JournalComponent {
     public bgLoadingService: BgLoadingService,
     private appService: AppService
   ) {
-    this.zone.runOutsideAngular(() => {
+    this.zone.runOutsideAngular(async () => {
       this.arr = this.wasmService.asc.F64;
       this.fadein_arr = new Int32Array(5);
       for (let i = 0; i < 5; i++)
-        this.fadein_arr[i] = this.wasmService.asc.memory_allocate(1);
+        this.fadein_arr[i] = await this.wasmService.asc.memory.allocate(1);
     })
   }
 
@@ -140,8 +140,8 @@ export class JournalComponent {
       return this.wasmService.asc.render_prologue_box(this.appService.content_top, this.switch[0].getBoundingClientRect().top);
   }
 
-  render_content(last: boolean, i: number, item: object): void {
-    return this.zone.runOutsideAngular(() => {
+  render_content(last: boolean, i: number, item: object): Promise<void> {
+    return this.zone.runOutsideAngular(async () => {
       if (!this.authorized) {
         const content_root = document.getElementById('content' + i);
         if (!!content_root) {
@@ -183,8 +183,11 @@ export class JournalComponent {
           if (last) {
             this.pin_trigger = document.querySelectorAll('.pin_trigger');
             this.pin_arr = new Int32Array(this.pin_trigger.length);
-            for (let i = 0; i < this.pin_trigger.length; i++)
-              this.pin_arr[i] = this.wasmService.asc.memory_allocate(1);
+            for (let i = 0; i < this.pin_trigger.length; i++) {
+              this.pin_arr[i] = await this.wasmService.asc.memory.allocate(1);
+              console.log(this.pin_arr[i]);
+            }
+
             this.render_switch();
           }
         }
@@ -198,12 +201,12 @@ export class JournalComponent {
     });
   }
 
-  render_switch() {
+  async render_switch() {
     this.switch = document.querySelectorAll('.switch');
     if (!this.appService.content_top)
       this.appService.content_top = this.switch[0].getBoundingClientRect().top;
     this.bg_arr = new Int32Array(this.switch.length);
     for (let i = 0; i < this.switch.length; i++)
-      this.bg_arr[i] = this.wasmService.asc.memory_allocate(1);
+      this.bg_arr[i] = await this.wasmService.asc.memory.allocate(1);
   }
 }
