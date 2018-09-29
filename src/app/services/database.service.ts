@@ -54,9 +54,8 @@ export class DatabaseService implements OnDestroy {
         .pipe(
           tap(
             (res: any) => {
-              this.bgLoadingService.background = res.background;
-              this.intro_bg_all = this.bgLoadingService.background.shift();
-              this.bgLoadingService.background.reverse();
+              this.intro_bg_all = res.background.shift();
+              this.bgLoadingService.background = res.background.reverse();
               this.intro_bg = 'url(' + this.intro_bg_all.org + ')';
             })
         );
@@ -64,12 +63,13 @@ export class DatabaseService implements OnDestroy {
   }
 
   update_data(content, item, id) {
+    const data_db = this.data_db;
     this.zone.run(() => this.new_hide = true);
     this.zone.runOutsideAngular(() => {
       if (item !== 'new') {
         const content_new = content['content' + id];
         if (!!content_new) {
-          this.data_db
+          data_db
             .doc(item.id)
             .set({ en: content_new, timestamp: item.timestamp })
             .then(() => this.zone.run(() => this.new_hide = false));
@@ -79,7 +79,7 @@ export class DatabaseService implements OnDestroy {
       } else {
         const content_new = content.content_new;
         if (!!content_new && content_new !== '') {
-          this.data_db
+          data_db
             .add({ en: content_new, timestamp: new Date() })
             .then(() => this.zone.run(() => this.new_hide = false));
         } else {
@@ -92,8 +92,8 @@ export class DatabaseService implements OnDestroy {
   delete_data(item) {
     this.zone.runOutsideAngular(() => {
       this.new_hide = true;
-      this.data_db.doc(item.id)
-        .delete();
+      const data_db = this.data_db;
+      data_db.doc(item.id).delete();
     });
   }
 

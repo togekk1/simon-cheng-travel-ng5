@@ -56,10 +56,17 @@ export class JournalComponent {
   post: Object;
   editorState: boolean;
 
-  fadein_arr: Int32Array;
-  pin_arr: Int32Array;
-  bg_arr: Int32Array;
-  arr: Float64Array;
+  fadein_first: number;
+  fadein_first_ptr: number;
+  pin_first: number;
+  pin_first_ptr: number;
+  bg_first: number;
+  bg_first_ptr: number;
+  F64: Float64Array = this.wasmService.asc.F64;
+  // arr: Float64Array;
+
+  scroll_hint_opacity: number;
+  prologue_box_opacity: number;
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -70,18 +77,15 @@ export class JournalComponent {
     private appService: AppService
   ) {
     this.zone.runOutsideAngular(() => {
-      this.arr = this.wasmService.asc.F64;
-      this.fadein_arr = new Int32Array(5);
-      for (let i = 0; i < 5; i++)
-        this.fadein_arr[i] = this.wasmService.asc.allocate_memory(1);
-    })
-  }
+      let fadein_first: number;
+      const allocate = this.wasmService.asc.memory.allocate;
 
-  get_opacity() {
-    if (!!this.switch && !!this.switch.length) {
-      this.wasmService.asc.render_fadein(this.appService.content_top, this.switch[0].getBoundingClientRect().top, this.fadein_arr[0]);
-      return this.arr[this.fadein_arr[0] >>> 3];
-    }
+      fadein_first = allocate(1);
+      for (let i = 0; i < 4; i++) allocate(1);
+
+      this.fadein_first = fadein_first >>> 3;
+      this.fadein_first_ptr = fadein_first;
+    })
   }
 
   pin_track(index) {
@@ -97,53 +101,65 @@ export class JournalComponent {
 
   get_bg_opacity() {
     this.zone.runOutsideAngular(() => {
-      if (!!this.switch && !!this.switch.length) {
-        for (let i = 0; i < this.switch.length; i++) {
-          this.arr[this.bg_arr[i] >>> 3] = this.switch[i].getBoundingClientRect().top;
+
+      const asc = this.wasmService.asc;
+
+      // get pin opacity
+      const F64 = this.F64, pin_trigger = this.pin_trigger, pin_first = this.pin_first;
+      if (pin_trigger) {
+        pin_trigger.forEach((pin, index) => {
+          F64[pin_first + index] = pin.getBoundingClientRect().top;
+        });
+        asc.render_trigger(this.pin_first_ptr, pin_trigger.length);
+      }
+
+      const _switch = this.switch;
+      if (!!_switch && !!_switch.length) {
+
+        // Get fadein opacity
+        asc.render_fadein(this.appService.content_top, _switch[0].getBoundingClientRect().top, this.fadein_first_ptr);
+
+        // Get backgroud opacity
+        const F64 = this.F64, bg_first = this.bg_first;
+        let bg_selected: number;
+        for (let i = 0; i < _switch.length; i++) {
+          F64[bg_first + i] = _switch[i].getBoundingClientRect().top;
+          if (F64[bg_first + i] > 0 && !bg_selected) bg_selected = i;
         }
-        this.wasmService.asc.render_bg(this.bg_arr[0], this.switch.length);
-        this.bg_selected = this.bg_arr.findIndex(j => this.arr[j >>> 3] > 0);
-        this.bg_selected = this.bg_selected === -1 ? this.switch.length : this.bg_selected;
+        asc.render_bg(this.bg_first_ptr, _switch.length + 1);
+        this.bg_selected = bg_selected === -1 ? _switch.length : bg_selected;
+
+        const content_top = this.appService.content_top, switch_top = _switch[0].getBoundingClientRect().top;
+
+        // Get scroll hint opacity
+        this.scroll_hint_opacity = asc.render_scroll_hint(content_top, switch_top);
+
+        // Get prologue box opacity
+        this.prologue_box_opacity = asc.render_prologue_box(content_top, switch_top);
       }
     });
   }
 
-  get_pin_opacity() {
-    this.zone.runOutsideAngular(() => {
-      this.pin_trigger.forEach((pin, index) => {
-        this.arr[this.pin_arr[index] >>> 3] = pin.getBoundingClientRect().top;
-      });
-      this.wasmService.asc.render_trigger(this.pin_arr[0], this.pin_trigger.length);
-    })
-  }
-
-  get_value(ptr: number) {
-    return this.arr[ptr >>> 3];
-  }
-
-
-  get_bg_value(i: number) {
-    const index = this.bgLoadingService.background.length - i - 1;
-    if (index < this.switch.length)
-      return this.arr[this.bg_arr[index] >>> 3];
-    if (index === this.switch.length)
-      return 1;
-  }
-
-  get_scroll_hint_opacity() {
-    if (!!this.switch && !!this.switch.length)
-      return this.wasmService.asc.render_scroll_hint(this.appService.content_top, this.switch[0].getBoundingClientRect().top);
-  }
-
-  get_prologue_box_opacity() {
-    if (!!this.switch && !!this.switch.length)
-      return this.wasmService.asc.render_prologue_box(this.appService.content_top, this.switch[0].getBoundingClientRect().top);
-  }
-
   render_content(last: boolean, i: number, item: object): void {
     return this.zone.runOutsideAngular(() => {
+      let content_root;
+      const allocate = this.wasmService.asc.memory.allocate,
+
+        render_switch = () => {
+          const _switch = document.querySelectorAll('.switch'),
+            appService = this.appService
+          if (!appService.content_top)
+            appService.content_top = _switch[0].getBoundingClientRect().top;
+          const bg_first_ptr = allocate(1);
+          for (let i = 0; i < _switch.length - 1; i++) allocate(1);
+          allocate(1);
+          this.bg_first_ptr = bg_first_ptr;
+          this.bg_first = bg_first_ptr >>> 3;
+          this.switch = _switch;
+        }
+
       if (!this.authorized) {
-        const content_root = document.getElementById('content' + i);
+        content_root = document.getElementById('content' + i);
         if (!!content_root) {
           (<any>item).unbind = true;
           const content = document.createElement('div');
@@ -168,10 +184,12 @@ export class JournalComponent {
             !!pin_trigger.length &&
             !this.trigger_unbind
           ) {
+            const triggers = this.triggers;
             Array.from(pin_point).forEach(el => {
-              this.triggers.push(el.innerHTML);
+              triggers.push(el.innerHTML);
               el.remove();
             });
+            this.triggers = triggers;
 
             Array.from(pin_trigger).forEach(el => {
               (<any>el).style.height = '1100px';
@@ -181,29 +199,24 @@ export class JournalComponent {
           content_root.appendChild(frag);
 
           if (last) {
-            this.pin_trigger = document.querySelectorAll('.pin_trigger');
-            this.pin_arr = new Int32Array(this.pin_trigger.length);
-            for (let i = 0; i < this.pin_trigger.length; i++)
-              this.pin_arr[i] = this.wasmService.asc.allocate_memory(1);
-            this.render_switch();
+            const pin_trigger = document.querySelectorAll('.pin_trigger'),
+              pin_first_ptr = allocate(1);
+            for (let i = 0; i < pin_trigger.length - 1; i++) allocate(1);
+            this.pin_first_ptr = pin_first_ptr;
+            this.pin_first = pin_first_ptr >>> 3;
+            this.pin_trigger = pin_trigger;
+            render_switch();
           }
         }
       } else {
-        const content_root = document.getElementById('edit' + i);
+        content_root = document.getElementById('edit' + i);
         if (!!content_root) {
           (<any>item).unbind = true;
-          last && this.render_switch();
+          last && render_switch();
         }
       }
     });
   }
 
-  render_switch() {
-    this.switch = document.querySelectorAll('.switch');
-    if (!this.appService.content_top)
-      this.appService.content_top = this.switch[0].getBoundingClientRect().top;
-    this.bg_arr = new Int32Array(this.switch.length);
-    for (let i = 0; i < this.switch.length; i++)
-      this.bg_arr[i] = this.wasmService.asc.allocate_memory(1);
-  }
+
 }

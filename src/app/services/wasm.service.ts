@@ -14,7 +14,6 @@ export class WasmService {
       const url = 'assets/optimized.wasm';
       const instance = await this.instantiateCachedURL(wasmCacheVersion, url);
       this.asc = instance;
-      this.asc.reset_memory();
     });
   }
 
