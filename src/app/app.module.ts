@@ -4,9 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { NgProgressModule } from '@ngx-progressbar/core';
-import { AngularFireModule } from 'angularfire2';
-import { AngularFireDatabaseModule } from 'angularfire2/database';
-import { AngularFirestoreModule } from 'angularfire2/firestore';
 
 import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
@@ -20,9 +17,10 @@ import { ContentToolsComponent } from './contenttools.component';
 import { NgInitDirective } from './nginit.directive';
 import { DatabaseService } from './services/database.service';
 import { WasmService } from './services/wasm.service';
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 
-// New imports to update based on AngularFire2 version 4
-// import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyB6tIkSAFsEb8cZQSYq4tlOpuw9DWaF-_E',
@@ -52,8 +50,6 @@ export const firebaseConfig = {
     AngularFireDatabaseModule,
     AngularFirestoreModule.enablePersistence(),
     NgProgressModule.forRoot(),
-    // FroalaEditorModule.forRoot(),
-    // FroalaViewModule.forRoot(),
     FormsModule,
     ReactiveFormsModule
   ],

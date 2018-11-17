@@ -29,7 +29,7 @@ export class WasmService {
   async instantiateCachedURL(dbVersion, url) {
     const dbName = 'wasm-cache';
     const storeName = 'wasm-cache';
-    const loader = require("../assemblyscript/lib/loader");
+    const loader = require("../../../../assemblyscript/lib/loader");
 
     if (environment.production) {
       // With all the Promise helper functions defined, we can now express the core

@@ -4,7 +4,6 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { environment } from '../environments/environment';
 
 import { AppService } from './app.service';
-import { BgLoadingService } from './components/bg-loading/bg-loading.service';
 import { DatabaseService } from './services/database.service';
 import { WasmService } from './services/wasm.service';
 
@@ -76,8 +75,7 @@ export class AppComponent implements AfterViewInit {
     private cdr: ChangeDetectorRef,
     public wasmService: WasmService,
     public appService: AppService,
-    private bgLoadingService: BgLoadingService,
-    public databaseService: DatabaseService
+    public databaseService: DatabaseService,
   ) {
     this.zone.runOutsideAngular(() => {
       this.password_group = new FormGroup({

@@ -1,5 +1,5 @@
-import { Component, NgZone } from '@angular/core';
-import { NgProgress } from '@ngx-progressbar/core';
+import { Component, NgZone, OnInit } from '@angular/core';
+import { NgProgress, NgProgressRef } from '@ngx-progressbar/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -13,10 +13,11 @@ import { BgLoadingService } from '../bg-loading/bg-loading.service';
   templateUrl: './bg-loading.component.html',
   styleUrls: ['./bg-loading.component.less']
 })
-export class BgLoadingComponent {
+export class BgLoadingComponent implements OnInit {
   loading_percentage = '0';
   response: object;
   private ngUnsubscribe: Subject<any> = new Subject();
+  progressRef: NgProgressRef;
 
   constructor(
     private bgLoadingService: BgLoadingService,
@@ -24,15 +25,16 @@ export class BgLoadingComponent {
     private ngProgress: NgProgress,
     private wasmService: WasmService,
     private appService: AppService,
+    private progress: NgProgress,
     private zone: NgZone
-  ) {
-    this.loading();
-  }
-  loading() {
+  ) { }
+
+  ngOnInit() {
     this.zone.runOutsideAngular(() => {
+      this.progressRef = this.progress.ref();
       this.zone.run(() => {
-        this.ngProgress.set(0);
-        this.ngProgress.start();
+        this.progressRef.set(0);
+        this.progressRef.start();
       });
       const completedPercentage: Array<any> = [];
       let sum: number;
@@ -44,7 +46,7 @@ export class BgLoadingComponent {
             xmlHTTP.open('GET', (<any>this.bgLoadingService.background[i]).org, true);
             xmlHTTP.responseType = 'arraybuffer';
             xmlHTTP.onload = e => {
-              const blob = new Blob([this.response]);
+              const blob = new Blob([(<any>this.response)]);
               const src = window.URL.createObjectURL(blob);
             };
             xmlHTTP.onprogress = e => {
@@ -56,7 +58,7 @@ export class BgLoadingComponent {
                 this.loading_percentage = sum.toFixed(0);
                 this.appService.intro_show = completedPercentage[0] === 100;
                 if (sum === 100) {
-                  this.ngProgress.complete();
+                  this.progressRef.complete();
                 }
               });
             };

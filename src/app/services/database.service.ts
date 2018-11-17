@@ -1,5 +1,5 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Subject } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
 
@@ -14,7 +14,7 @@ export class DatabaseService implements OnDestroy {
   intro_bg_all: any;
   intro_bg: string;
   password: string;
-  data: Object;
+  data: any;
   new_hide: boolean;
   editorContent_new: string;
   refresh: boolean;

@@ -79,7 +79,7 @@
       <div class="new_post" *ngIf="authorized">
         <h3>Add new post here...</h3>
         <app-content-tools *ngIf="!databaseService.new_hide" ngInit (init)="editorState = true; databaseService.new_hide = false"
-          (save)="databaseService.update_data($event, 'new')" [editorState]="editorState" (click)="$event.stopPropagation()">
+          (save)="databaseService.update_data($event, 'new', null)" [editorState]="editorState" (click)="$event.stopPropagation()">
           <div data-editable data-name="content_new"></div>
         </app-content-tools>
       </div>
