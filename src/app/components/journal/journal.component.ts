@@ -56,13 +56,14 @@ export class JournalComponent {
   post: Object;
   editorState: boolean;
 
-  fadein_first: number;
-  fadein_first_ptr: number;
+  fadein: Float64Array = new Float64Array(5);
+  // fadein_first: number;
+  // fadein_first_ptr: number;
   pin_first: number;
   pin_first_ptr: number;
-  bg_first: number;
-  bg_first_ptr: number;
-  F64: Float64Array = this.wasmService.asc.F64;
+  // bg_first: number;
+  // bg_first_ptr: number;
+  F64: Float64Array;
   // arr: Float64Array;
 
   scroll_hint_opacity: number;
@@ -77,14 +78,15 @@ export class JournalComponent {
     private appService: AppService
   ) {
     this.zone.runOutsideAngular(() => {
-      let fadein_first: number;
-      const allocate = this.wasmService.asc.memory.allocate;
-
-      fadein_first = allocate(1);
-      for (let i = 0; i < 4; i++) allocate(1);
-
-      this.fadein_first = fadein_first >>> 3;
-      this.fadein_first_ptr = fadein_first;
+      // const fadein_first: number = await wasmService.asc_worker.run(({ instance, importObject }) => {
+      //   const allocate = instance.exports['memory.allocate'];
+      //   const fadein_first = allocate(1);
+      //   for (let i = 0; i < 4; i++) allocate(1);
+      //   return fadein_first;
+      // })
+      // this.fadein_first = fadein_first >>> 3;
+      // this.fadein_first_ptr = fadein_first;
+      // this.fadein.fill(0);
     })
   }
 
@@ -100,12 +102,12 @@ export class JournalComponent {
   scrollevent() { }
 
   get_bg_opacity() {
-    this.zone.runOutsideAngular(() => {
-
-      const asc = this.wasmService.asc;
+    this.zone.runOutsideAngular(async () => {
+      const asc = this.wasmService.asc,
+        asc_worker = this.wasmService.asc_worker;
 
       // get pin opacity
-      const F64 = this.F64, pin_trigger = this.pin_trigger, pin_first = this.pin_first;
+      const F64 = asc.F64, pin_trigger = this.pin_trigger, pin_first = this.pin_first;
       if (pin_trigger) {
         pin_trigger.forEach((pin, index) => {
           F64[pin_first + index] = pin.getBoundingClientRect().top;
@@ -114,28 +116,63 @@ export class JournalComponent {
       }
 
       const _switch = this.switch;
-      if (!!_switch && !!_switch.length) {
+      if (_switch && _switch.length) {
 
-        // Get fadein opacity
-        asc.render_fadein(this.appService.content_top, _switch[0].getBoundingClientRect().top, this.fadein_first_ptr);
+        const f0 = async () => {
+          // Get fadein opacity
+          // Get backgroud opacity
+          let pos: Float64Array = new Float64Array(_switch.length)
+          for (let i = 0; i < _switch.length; i++) {
+            pos[i] = _switch[i].getBoundingClientRect().top;
+          }
 
-        // Get backgroud opacity
-        const F64 = this.F64, bg_first = this.bg_first;
-        let bg_selected: number;
-        for (let i = 0; i < _switch.length; i++) {
-          F64[bg_first + i] = _switch[i].getBoundingClientRect().top;
-          if (F64[bg_first + i] > 0 && !bg_selected) bg_selected = i;
+          const value: object = await asc_worker.run(({ instance, importObject, params }) => {
+            const asc = instance.exports;
+            const loader = importObject.loader(instance);
+
+            const fadein_ptr = asc.render_fadein(...params[0].fadein);
+            const fadein = loader.getArray(Float64Array, fadein_ptr);
+            loader.freeArray(fadein_ptr);
+
+            const pos = params[0].bg[0],
+              switch_length = params[0].bg[1];
+            let bg_selected: number;
+            for (let i = 0; i < switch_length; i++) {
+              if (pos[i] > 0 && !bg_selected) bg_selected = i;
+            }
+            const pos_ptr = loader.newArray(pos, switch_length);
+            console.log(pos_ptr);
+
+            // const bg_ptr = asc.render_bg(pos_ptr, switch_length + 1);
+            // const bg = loader.getArray(Float64Array, bg_ptr);
+            loader.freeArray(pos_ptr);
+            // loader.freeArray(bg_ptr);
+
+            bg_selected = bg_selected === -1 ? switch_length : bg_selected;
+
+            // console.log(fadein);
+
+            return { fadein, bg_selected };
+          }, [{
+            fadein: [this.appService.content_top, _switch[0].getBoundingClientRect().top],
+            bg: [pos, _switch.length]
+          }])
+          this.fadein = (<any>value).fadein;
+          // console.log(this.fadein);
+          this.bg_selected = (<any>value).bg_selected;
         }
-        asc.render_bg(this.bg_first_ptr, _switch.length + 1);
-        this.bg_selected = bg_selected === -1 ? _switch.length : bg_selected;
 
-        const content_top = this.appService.content_top, switch_top = _switch[0].getBoundingClientRect().top;
+        const f1 = async () => {
+          const F64 = this.wasmService.asc.F64;
+          const content_top = this.appService.content_top, switch_top = _switch[0].getBoundingClientRect().top;
 
-        // Get scroll hint opacity
-        this.scroll_hint_opacity = asc.render_scroll_hint(content_top, switch_top);
+          // Get scroll hint opacity
+          this.scroll_hint_opacity = asc.render_scroll_hint(content_top, switch_top);
 
-        // Get prologue box opacity
-        this.prologue_box_opacity = asc.render_prologue_box(content_top, switch_top);
+          // Get prologue box opacity
+          this.prologue_box_opacity = asc.render_prologue_box(content_top, switch_top);
+        }
+        Promise.all([f0(), f1()]);
       }
     });
   }
@@ -150,11 +187,11 @@ export class JournalComponent {
             appService = this.appService
           if (!appService.content_top)
             appService.content_top = _switch[0].getBoundingClientRect().top;
-          const bg_first_ptr = allocate(1);
-          for (let i = 0; i < _switch.length - 1; i++) allocate(1);
-          allocate(1);
-          this.bg_first_ptr = bg_first_ptr;
-          this.bg_first = bg_first_ptr >>> 3;
+          // const bg_first_ptr = allocate(1);
+          // for (let i = 0; i < _switch.length - 1; i++) allocate(1);
+          // allocate(1);
+          // this.bg_first_ptr = bg_first_ptr;
+          // this.bg_first = bg_first_ptr >>> 3;
           this.switch = _switch;
         }
 

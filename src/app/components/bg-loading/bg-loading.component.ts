@@ -26,14 +26,10 @@ export class BgLoadingComponent {
     private appService: AppService,
     private zone: NgZone
   ) {
-    this.loading();
-  }
-  loading() {
     this.zone.runOutsideAngular(() => {
-      this.zone.run(() => {
-        this.ngProgress.set(0);
-        this.ngProgress.start();
-      });
+      const progress = ngProgress.ref();
+      progress.set(0);
+      progress.start();
       const completedPercentage: Array<any> = [];
       let sum: number;
       this.databaseService.load_bg()
@@ -43,10 +39,10 @@ export class BgLoadingComponent {
             const xmlHTTP = new XMLHttpRequest();
             xmlHTTP.open('GET', (<any>this.bgLoadingService.background[i]).org, true);
             xmlHTTP.responseType = 'arraybuffer';
-            xmlHTTP.onload = e => {
-              const blob = new Blob([this.response]);
-              const src = window.URL.createObjectURL(blob);
-            };
+            // xmlHTTP.onload = e => {
+            //   const blob = new Blob([this.response]);
+            //   const src = window.URL.createObjectURL(blob);
+            // };
             xmlHTTP.onprogress = e => {
               completedPercentage[i] = e.loaded / e.total * 100;
               sum =
@@ -56,7 +52,7 @@ export class BgLoadingComponent {
                 this.loading_percentage = sum.toFixed(0);
                 this.appService.intro_show = completedPercentage[0] === 100;
                 if (sum === 100) {
-                  this.ngProgress.complete();
+                  progress.complete();
                 }
               });
             };

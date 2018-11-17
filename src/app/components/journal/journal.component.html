@@ -2,13 +2,13 @@
   <div class="bg_container fill">
 
     <div class="bg_content">
-      <div class="fill" *ngFor="let bg of bgLoadingService.background; trackBy:index; let i = index; let first = first">
-        <span *ngIf="first && get_bg_opacity()"></span>
-        <div class="bg img" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': F64[bg_first + bgLoadingService.background.length - i - 1]}">
+      <ng-container *ngFor="let bg of bgLoadingService.background; trackBy:index; let i = index; let first = first">
+        <div class="fill">
+          <span *ngIf="first && get_bg_opacity()"></span>
+          <div class="bg img" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': wasmService.asc.F64[bg_first + bgLoadingService.background.length - i - 1]}">
+          </div>
         </div>
-        <!-- <div class="bg img" *ngIf="bgLoadingService.background.length - i - 1 === switch.length" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': '1'}">
-        </div> -->
-      </div>
+      </ng-container>
     </div>
 
     <div class="bg filter fill" [@hide_filter]="!hide_content ? 'void' : 'on'"></div>
@@ -25,19 +25,19 @@
         *ngIf="!!switch">
         <p id="fadein0" class="fadein">
         </p>
-        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': F64[fadein_first]}">
+        <p id="fadein1" class="fadein" [ngStyle]="{'opacity': fadein[0]}">
           I still don&#39;t know where this flight will take me.
         </p>
-        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': F64[fadein_first + 1]}">
+        <p id="fadein2" class="fadein" [ngStyle]="{'opacity': fadein[1]}">
           I still don&#39;t know where this road will lead me.
         </p>
-        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': F64[fadein_first + 2]}">
+        <p id="fadein3" class="fadein" [ngStyle]="{'opacity': fadein[2]}">
           But one thing I know for sure,
         </p>
-        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': F64[fadein_first + 3]}">
+        <p id="fadein4" class="fadein" [ngStyle]="{'opacity': fadein[3]}">
           This will change my life forever.
         </p>
-        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': F64[fadein_first + 4]}">
+        <p id="fadein8" class="fadein" [ngStyle]="{'opacity': fadein[4]}">
           The night before I left Taiwan, I asked myself over and over again if I have to do this. Yeah, first time
           being a backpacker.
           First time traveling alone. First time speaking English. And first time doing everything on my own without
@@ -51,7 +51,8 @@
     </div>
 
     <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index; let first = first">
-      <span *ngIf="F64[pin_first + i] >= -0.5" [ngStyle]="{ 'opacity' : F64[pin_first + i] }" [innerHTML]="trigger"></span>
+      <span *ngIf="wasmService.asc.F64[pin_first + i] >= -0.5" [ngStyle]="{ 'opacity' : wasmService.asc.F64[pin_first + i] }"
+        [innerHTML]="trigger"></span>
     </div>
   </div>
 
@@ -79,7 +80,7 @@
       <div class="new_post" *ngIf="authorized">
         <h3>Add new post here...</h3>
         <app-content-tools *ngIf="!databaseService.new_hide" ngInit (init)="editorState = true; databaseService.new_hide = false"
-          (save)="databaseService.update_data($event, 'new')" [editorState]="editorState" (click)="$event.stopPropagation()">
+          (save)="databaseService.update_data($event, 'new', null)" [editorState]="editorState" (click)="$event.stopPropagation()">
           <div data-editable data-name="content_new"></div>
         </app-content-tools>
       </div>

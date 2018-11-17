@@ -14,7 +14,7 @@ export class DatabaseService implements OnDestroy {
   intro_bg_all: any;
   intro_bg: string;
   password: string;
-  data: Object;
+  data: any;
   new_hide: boolean;
   editorContent_new: string;
   refresh: boolean;
