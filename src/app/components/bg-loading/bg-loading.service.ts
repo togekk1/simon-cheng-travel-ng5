@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
 
+interface background {
+  org: string;
+}
+
 @Injectable()
 export class BgLoadingService {
-  background: Array<object>;
+  background: background[] = [];
 
   constructor() { }
 

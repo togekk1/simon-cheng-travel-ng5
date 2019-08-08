@@ -10,9 +10,19 @@
     "test.ts",
     "**/*.spec.ts",
     "app/wasm/assembly/**",
-    "app/assemblyscript/**"
+    "app/assemblyscript/**",    "**/*.worker.ts"
+
   ],
   "angularCompilerOptions": {
-    "disableTypeScriptVersionCheck": true
+    "disableTypeScriptVersionCheck": true,
+    "alwaysStrict": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "strictFunctionTypes": true,
   }
 }

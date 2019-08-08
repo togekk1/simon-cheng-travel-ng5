@@ -60,15 +60,15 @@ import { WasmService } from './services/wasm.service';
 })
 
 export class AppComponent implements AfterViewInit {
-  loading_hidden: boolean;
-  title_show: string;
-  content_page_show: boolean;
+  loading_hidden: boolean = false;
+  title_show: string = '';
+  content_page_show: boolean = false;
   disabled = true;
-  leave: boolean;
-  password_group: FormGroup;
-  authorized: boolean;
-  pass_show: boolean;
-  prod: boolean;
+  leave: boolean = false;
+  password_group: FormGroup = new FormGroup({});
+  authorized: boolean = false;
+  pass_show: boolean = false;
+  prod: boolean = false;
 
   constructor(
     private zone: NgZone,
@@ -98,7 +98,7 @@ export class AppComponent implements AfterViewInit {
     })
   }
 
-  refresh(authorized) {
+  refresh(authorized: boolean) {
     this.zone.runOutsideAngular(() => {
       this.databaseService.refresh = false;
       this.content_page_show = false;

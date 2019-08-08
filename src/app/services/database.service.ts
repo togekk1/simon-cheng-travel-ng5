@@ -2,22 +2,39 @@ import { Injectable, NgZone, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Subject } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
-
 import { BgLoadingService } from '../components/bg-loading/bg-loading.service';
+import { Timestamp } from 'rxjs/internal/operators/timestamp';
+
+interface content {
+  [key: string]: string;
+}
+
+interface item {
+  id: number
+  timestamp: Timestamp<number>;
+  delete_processing: boolean;
+  unbind: boolean;
+  en: string;
+  is_new: boolean;
+}
+
+// interface response {
+//   password: string;
+// }
 
 @Injectable()
 export class DatabaseService implements OnDestroy {
-  db: AngularFirestore;
+  db: AngularFirestore | undefined;
   data_db: any;
   db_org: any;
   private ngUnsubscribe: Subject<any> = new Subject();
   intro_bg_all: any;
-  intro_bg: string;
-  password: string;
-  data: any;
-  new_hide: boolean;
-  editorContent_new: string;
-  refresh: boolean;
+  intro_bg: string = '';
+  password: string = '';
+  data: object;
+  new_hide: boolean = false;
+  editorContent_new: string = '';
+  refresh: boolean = false;
 
   constructor(
     public afDb: AngularFirestore,
@@ -28,7 +45,7 @@ export class DatabaseService implements OnDestroy {
       .doc('travel/password')
       .valueChanges()
       .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((res: any) => {
+      .subscribe((res: any): void => {
         this.password = res.password;
       });
 
@@ -38,7 +55,7 @@ export class DatabaseService implements OnDestroy {
 
     this.data = this.data_db.snapshotChanges().pipe(
       map(actions => {
-        return (<any>actions).map(action => {
+        return (<any>actions).map((action: { payload: { doc: { data: Function, id: number } } }) => {
           const data = action.payload.doc.data();
           const id = action.payload.doc.id;
           return { id, ...data };
@@ -62,12 +79,12 @@ export class DatabaseService implements OnDestroy {
     });
   }
 
-  update_data(content, item, id) {
+  update_data(content: content, item: item, id: number) {
     const data_db = this.data_db;
     this.zone.run(() => this.new_hide = true);
     this.zone.runOutsideAngular(() => {
-      if (item !== 'new') {
-        const content_new = content['content' + id];
+      if (!item.is_new) {
+        const content_new: string = content['content' + id];
         if (!!content_new) {
           data_db
             .doc(item.id)
@@ -89,7 +106,7 @@ export class DatabaseService implements OnDestroy {
     });
   }
 
-  delete_data(item) {
+  delete_data(item: item) {
     this.zone.runOutsideAngular(() => {
       this.new_hide = true;
       const data_db = this.data_db;

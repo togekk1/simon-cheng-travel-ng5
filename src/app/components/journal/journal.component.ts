@@ -1,6 +1,5 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, EventEmitter, HostListener, Inject, Input, NgZone, Output } from '@angular/core';
-import { DOCUMENT } from '@angular/platform-browser';
+import { Component, EventEmitter, HostListener, Input, NgZone, Output } from '@angular/core';
 
 import { AppService } from '../../app.service';
 import { DatabaseService } from '../../services/database.service';
@@ -30,46 +29,45 @@ import { BgLoadingService } from '../bg-loading/bg-loading.service';
   ]
 })
 export class JournalComponent {
-  @Input() authorized: boolean;
+  @Input() authorized: boolean = false;
   @Output() refresh: EventEmitter<void> = new EventEmitter();
-  content_top: number;
-  index: number;
+  content_top: number = 0;
+  index: number = 0;
   pin_point: any;
   pin_trigger: any;
   pin_trigger_new: any;
   triggers: Array<string> = new Array();
-  switch_top: number;
+  switch_top: number = 0;
   opacity_arr: Array<any> = [];
   bg_selected = 0;
   switch: any;
   hidden: any;
-  switch_unbind: boolean;
-  pin_unbind: boolean;
-  trigger_unbind: boolean;
-  hidden_unbind: boolean;
+  switch_unbind: boolean = false;
+  pin_unbind: boolean = false;
+  trigger_unbind: boolean = false;
+  hidden_unbind: boolean = false;
   editorContent: Array<any> = [];
-  pass_show: boolean;
-  editing: boolean;
-  hide_content: boolean;
-  text_hide: boolean;
-  item: object;
-  post: Object;
-  editorState: boolean;
+  pass_show: boolean = false;
+  editing: boolean = false;
+  hide_content: boolean = false;
+  text_hide: boolean = false;
+  item: object = {};
+  post: Object = {};
+  editorState: boolean = false;
 
-  fadein_first: number;
-  fadein_first_ptr: number;
-  pin_first: number;
-  pin_first_ptr: number;
-  bg_first: number;
-  bg_first_ptr: number;
+  fadein_first: number = 0;
+  fadein_first_ptr: number = 0;
+  pin_first: number = 0;
+  pin_first_ptr: number = 0;
+  bg_first: number = 0;
+  bg_first_ptr: number = 0;
   F64: Float64Array = this.wasmService.asc.F64;
   // arr: Float64Array;
 
-  scroll_hint_opacity: number;
-  prologue_box_opacity: number;
+  scroll_hint_opacity: number = 0;
+  prologue_box_opacity: number = 0;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
     private zone: NgZone,
     public databaseService: DatabaseService,
     public wasmService: WasmService,
@@ -88,7 +86,7 @@ export class JournalComponent {
     })
   }
 
-  pin_track(index) {
+  pin_track(_item: object, index: number) {
     return index;
   }
 
@@ -107,7 +105,7 @@ export class JournalComponent {
       // get pin opacity
       const F64 = this.F64, pin_trigger = this.pin_trigger, pin_first = this.pin_first;
       if (pin_trigger) {
-        pin_trigger.forEach((pin, index) => {
+        pin_trigger.forEach((pin: HTMLElement, index: number) => {
           F64[pin_first + index] = pin.getBoundingClientRect().top;
         });
         asc.render_trigger(this.pin_first_ptr, pin_trigger.length);
@@ -121,7 +119,7 @@ export class JournalComponent {
 
         // Get backgroud opacity
         const F64 = this.F64, bg_first = this.bg_first;
-        let bg_selected: number;
+        let bg_selected: number = 0;
         for (let i = 0; i < _switch.length; i++) {
           F64[bg_first + i] = _switch[i].getBoundingClientRect().top;
           if (F64[bg_first + i] > 0 && !bg_selected) bg_selected = i;
@@ -217,6 +215,4 @@ export class JournalComponent {
       }
     });
   }
-
-
 }

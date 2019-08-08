@@ -4,7 +4,6 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  NgModule,
   NgZone,
   OnChanges,
   OnDestroy,
@@ -21,16 +20,16 @@ const ContentToolsLib = require('../../node_modules/ContentTools/build/content-t
   template:
     '<div #contenttools class="content-tools"><ng-content></ng-content></div>'
 })
-@NgModule({
-  declarations: [ContentToolsComponent],
-  exports: [ContentToolsComponent]
-})
+// @NgModule({
+//   declarations: [ContentToolsComponent],
+//   exports: [ContentToolsComponent]
+// })
 export class ContentToolsComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Output() save = new EventEmitter<Object>();
-  @Input() editorState;
-  @ViewChild('contenttools') element: ElementRef;
+  @Input() editorState: boolean = false;
+  @ViewChild('contenttools', { static: false }) element: ElementRef = new ElementRef(undefined);
   editor = ContentToolsLib.EditorApp.get();
-  not_first_time: boolean;
+  not_first_time: boolean = false;
 
   constructor(private zone: NgZone) { }
 
@@ -39,7 +38,7 @@ export class ContentToolsComponent implements AfterViewInit, OnChanges, OnDestro
     this.zone.runOutsideAngular(() => {
       this.editor.init('*[data-editable]', 'data-name');
 
-      this.editor.addEventListener('saved', function (ev) {
+      this.editor.addEventListener('saved', function (ev: { detail: Function }) {
         const regions = ev.detail().regions;
         if (Object.keys(regions).length === 0) {
           return;

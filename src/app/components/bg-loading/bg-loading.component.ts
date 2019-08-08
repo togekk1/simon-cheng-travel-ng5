@@ -5,7 +5,6 @@ import { takeUntil } from 'rxjs/operators';
 
 import { AppService } from '../../app.service';
 import { DatabaseService } from '../../services/database.service';
-import { WasmService } from '../../services/wasm.service';
 import { BgLoadingService } from '../bg-loading/bg-loading.service';
 
 @Component({
@@ -15,15 +14,13 @@ import { BgLoadingService } from '../bg-loading/bg-loading.service';
 })
 export class BgLoadingComponent implements OnInit {
   loading_percentage = '0';
-  response: object;
+  response: Blob = new Blob();
   private ngUnsubscribe: Subject<any> = new Subject();
-  progressRef: NgProgressRef;
+  progressRef: NgProgressRef = new NgProgressRef({}, () => { });
 
   constructor(
     private bgLoadingService: BgLoadingService,
     private databaseService: DatabaseService,
-    private ngProgress: NgProgress,
-    private wasmService: WasmService,
     private appService: AppService,
     private progress: NgProgress,
     private zone: NgZone
@@ -40,15 +37,15 @@ export class BgLoadingComponent implements OnInit {
       let sum: number;
       this.databaseService.load_bg()
         .pipe(takeUntil(this.ngUnsubscribe))
-        .subscribe((res: object) => {
+        .subscribe(() => {
           for (let i = 0; i < this.bgLoadingService.background.length; i++) {
             const xmlHTTP = new XMLHttpRequest();
-            xmlHTTP.open('GET', (<any>this.bgLoadingService.background[i]).org, true);
+            xmlHTTP.open('GET', this.bgLoadingService.background[i].org, true);
             xmlHTTP.responseType = 'arraybuffer';
-            xmlHTTP.onload = e => {
-              const blob = new Blob([(<any>this.response)]);
-              const src = window.URL.createObjectURL(blob);
-            };
+            // xmlHTTP.onload = () => {
+            //   const blob = new Blob([this.response]);
+            //   const src = window.URL.createObjectURL(blob);
+            // };
             xmlHTTP.onprogress = e => {
               completedPercentage[i] = e.loaded / e.total * 100;
               sum =

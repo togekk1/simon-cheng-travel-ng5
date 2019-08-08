@@ -4,7 +4,8 @@
     <div class="bg_content">
       <div class="fill" *ngFor="let bg of bgLoadingService.background; trackBy:index; let i = index; let first = first">
         <span *ngIf="first && get_bg_opacity()"></span>
-        <div class="bg img" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': F64[bg_first + bgLoadingService.background.length - i - 1]}">
+        <div class="bg img"
+          [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': F64[bg_first + bgLoadingService.background.length - i - 1]}">
         </div>
         <!-- <div class="bg img" *ngIf="bgLoadingService.background.length - i - 1 === switch.length" [ngStyle]="{'background-image': 'url(' + bg.org + ')', 'opacity': '1'}">
         </div> -->
@@ -21,8 +22,8 @@
 
       <div class="bleed"></div>
 
-      <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'" [@hide_content]="!hide_content ? 'void' : 'on'"
-        *ngIf="!!switch">
+      <div class="prologue text_fadeout" [@text]="!text_hide ? 'void' : 'on'"
+        [@hide_content]="!hide_content ? 'void' : 'on'" *ngIf="!!switch">
         <p id="fadein0" class="fadein">
         </p>
         <p id="fadein1" class="fadein" [ngStyle]="{'opacity': F64[fadein_first]}">
@@ -51,21 +52,26 @@
     </div>
 
     <div class="pin_point" *ngFor="let trigger of triggers; trackBy:pin_track; let i = index; let first = first">
-      <span *ngIf="F64[pin_first + i] >= -0.5" [ngStyle]="{ 'opacity' : F64[pin_first + i] }" [innerHTML]="trigger"></span>
+      <span *ngIf="F64[pin_first + i] >= -0.5" [ngStyle]="{ 'opacity' : F64[pin_first + i] }"
+        [innerHTML]="trigger"></span>
     </div>
   </div>
 
-  <div class="text text_fadeout" (click)="hide_content = !hide_content && !authorized" [@hide_content]="!hide_content ? 'void' : 'on'">
+  <div class="text text_fadeout" (click)="hide_content = !hide_content && !authorized"
+    [@hide_content]="!hide_content ? 'void' : 'on'">
 
     <div class="bleed" (mouseenter)="hide_content = !authorized" (mouseleave)="hide_content = false">
     </div>
 
     <div class="content">
       <div>
-        <div class="session" *ngFor="let item of databaseService.data | async; trackBy:item_trackby; let i = index; let last = last">
-          <app-content-tools [attr.id]="'edit' + i" *ngIf="authorized" (save)="databaseService.update_data($event, item, i)"
-            [editorState]="editorState" (click)="authorized && $event.stopPropagation()">
-            <i class="fa fa-trash pointer" *ngIf="!item.delete_processing" (click)="$event.stopPropagation(); item.delete_processing = true; databaseService.delete_data(item)"></i>
+        <div class="session"
+          *ngFor="let item of databaseService.data | async; trackBy:item_trackby; let i = index; let last = last">
+          <app-content-tools [attr.id]="'edit' + i" *ngIf="authorized"
+            (save)="databaseService.update_data($event, item, i)" [editorState]="editorState"
+            (click)="authorized && $event.stopPropagation()">
+            <i class="fa fa-trash pointer" *ngIf="!item.delete_processing"
+              (click)="$event.stopPropagation(); item.delete_processing = true; databaseService.delete_data(item)"></i>
             <i class="fa fa-spinner fa-spin" *ngIf="item.delete_processing"></i>
             <div *ngIf="!item.unbind && render_content(last, i, item)"></div>
             <div data-editable [attr.data-name]="'content' + i" [innerHTML]="item.en"></div>
@@ -78,8 +84,10 @@
 
       <div class="new_post" *ngIf="authorized">
         <h3>Add new post here...</h3>
-        <app-content-tools *ngIf="!databaseService.new_hide" ngInit (init)="editorState = true; databaseService.new_hide = false"
-          (save)="databaseService.update_data($event, 'new', null)" [editorState]="editorState" (click)="$event.stopPropagation()">
+        <app-content-tools *ngIf="!databaseService.new_hide" ngInit
+          (init)="editorState = true; databaseService.new_hide = false"
+          (save)="databaseService.update_data($event, {is_new: true}, null)" [editorState]="editorState"
+          (click)="$event.stopPropagation()">
           <div data-editable data-name="content_new"></div>
         </app-content-tools>
       </div>

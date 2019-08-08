@@ -39,17 +39,18 @@ export const firebaseConfig = {
     KeysPipe,
     ContentToolsComponent,
     JournalComponent,
-    BgLoadingComponent],
+    BgLoadingComponent
+  ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    environment.production
-      ? ServiceWorkerModule.register('/ngsw-worker.js')
-      : [],
+    ServiceWorkerModule.register("/ngsw-worker.js", {
+      enabled: environment.production
+    }),
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireDatabaseModule,
     AngularFirestoreModule.enablePersistence(),
-    NgProgressModule.forRoot(),
+    NgProgressModule,
     FormsModule,
     ReactiveFormsModule
   ],
